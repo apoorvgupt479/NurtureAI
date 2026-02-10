@@ -1,0 +1,79 @@
+/* ============================================================
+   NurtureAI — Styles
+   Mobile-first, warm, calming design for a parenting health app
+   ============================================================ */
+
+:root {
+    --primary: #FF6B6B;
+    --primary-dark: #E05555;
+    --primary-light: #FFE0E0;
+    --secondary: #A29BFE;
+    --secondary-light: #E8E5FF;
+    --accent: #FF8E53;
+    --bg: #FFF9F5;
+    --bg-card: #FFFFFF;
+    --text: #2D3436;
+    --text-light: #636E72;
+    --text-muted: #B2BEC3;
+    --border: #F0E6DF;
+    --success: #00B894;
+    --success-light: #D5F5EC;
+    --warning: #FDCB6E;
+    --warning-light: #FFF6D5;
+    --danger: #FF7675;
+    --danger-light: #FFE0E0;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-xs: 8px;
+    --font: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- Reset & Base ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* ---- Screens ---- */
+.screen {
+    display: none;
+    animation: fadeIn 0.4s ease;
+    min-height: 100dvh;
+}
+.screen.active { display: block; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.screen-content {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+}
+
+/* ---- Welcome Screen ---- */
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    text-align: center;
+    padding: 40px 24px;
