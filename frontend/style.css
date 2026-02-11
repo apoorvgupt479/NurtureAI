@@ -77,3 +77,82 @@ body {
     min-height: 100dvh;
     text-align: center;
     padding: 40px 24px;
+    background: linear-gradient(160deg, #FFF5F0 0%, #FEE8E0 40%, #E8E5FF 100%);
+}
+.welcome-icon {
+    font-size: 72px;
+    margin-bottom: 12px;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+}
+.welcome-container h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+}
+.tagline {
+    font-size: 1.15rem;
+    color: var(--text-light);
+    margin-bottom: 24px;
+    font-weight: 400;
+}
+.subtitle {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+}
+.hint {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: 16px;
+}
+
+/* ---- Buttons ---- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    gap: 6px;
+}
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.btn-ghost {
+    background: transparent;
+    color: var(--text-light);
+    border: 1.5px solid var(--border);
+}
+.btn-ghost:hover { background: var(--primary-light); color: var(--primary); }
+.btn-lg { padding: 16px 36px; font-size: 1.1rem; border-radius: var(--radius); }
+.btn-block { width: 100%; }
+.btn-row {
+    display: flex;

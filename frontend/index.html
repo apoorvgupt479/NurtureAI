@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NurtureAI — Child Health Companion</title>
+    <meta name="description" content="AI-powered child health assessment and parenting companion">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- SCREEN: Welcome                                               -->
+<!-- ============================================================ -->
+<section id="screen-welcome" class="screen active">
+    <div class="welcome-container">
+        <div class="welcome-icon">🌱</div>
+        <h1>NurtureAI</h1>
+        <p class="tagline">Your child's health companion</p>
+        <p class="subtitle">Smart health assessments powered by AI.<br>Simple, safe, and made for parents.</p>
+        <button id="btn-get-started" class="btn btn-primary btn-lg" onclick="App.startSetup()">
+            Get Started
+        </button>
+        <p class="hint">Takes less than 3 minutes</p>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SCREEN: Parent Setup Wizard                                   -->
+<!-- ============================================================ -->
+<section id="screen-parent" class="screen">
+    <div class="screen-content">
+        <div class="step-indicator" id="parent-steps">
+            <span class="step active" data-step="1">1</span>
+            <span class="step-line"></span>
+            <span class="step" data-step="2">2</span>
+            <span class="step-line"></span>
+            <span class="step" data-step="3">3</span>
+            <span class="step-line"></span>
+            <span class="step" data-step="4">4</span>
+        </div>
+
+        <!-- Step 1: Name -->
+        <div class="wizard-step active" id="parent-step-1">
+            <div class="card">
+                <div class="card-icon">👋</div>
+                <h2>Hi there! What's your name?</h2>
+                <p class="helper">We'll use this to personalize your experience.</p>
+                <div class="form-group">
+                    <label for="parent-name">Your Name</label>
+                    <input type="text" id="parent-name" placeholder="e.g. Sarah" autocomplete="given-name" required>
+                </div>
+                <button class="btn btn-primary" onclick="App.parentStep(2)" id="parent-next-1">Next →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Health -->
+        <div class="wizard-step" id="parent-step-2">
+            <div class="card">
+                <div class="card-icon">💪</div>
+                <h2>Your Health</h2>
+                <p class="helper">Understanding your health helps us assess the home environment. This is completely private.</p>
+
+                <div class="form-group">
+                    <label>How would you rate your overall health?</label>
+                    <div class="radio-group" id="parent-health">
+                        <label class="radio-card"><input type="radio" name="health" value="1"><span>Excellent</span></label>
+                        <label class="radio-card"><input type="radio" name="health" value="2"><span>Very Good</span></label>
+                        <label class="radio-card"><input type="radio" name="health" value="3" checked><span>Good</span></label>
+                        <label class="radio-card"><input type="radio" name="health" value="4"><span>Fair</span></label>
+                        <label class="radio-card"><input type="radio" name="health" value="5"><span>Poor</span></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="parent-sleep">How many hours do you sleep per night?</label>
+                    <p class="helper-sm">Optimal is 7–9 hours. Sleep affects parenting energy!</p>
