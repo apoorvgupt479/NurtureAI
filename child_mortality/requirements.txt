@@ -1,0 +1,12 @@
+# Core libs used by child_health_model.py and model.pkl inference
+pandas==3.0.2
+scikit-learn==1.6.1
+
+# Explicit transitive pins for reproducible runtime behavior
+numpy==2.4.4
+scipy==1.17.1
+joblib==1.5.3
+threadpoolctl==3.6.0
+python-dateutil==2.9.0.post0
+tzdata==2026.1
+six==1.17.0
