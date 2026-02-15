@@ -40,3 +40,46 @@ INPUT FEATURES REQUIRED (passed to predict() as a dictionary):
    - Default  : {} (empty dict if not provided)
 
 4. chat_history  [OPTIONAL]
+   - Meaning  : List of previous conversation turns for multi-turn context.
+   - Data Type: list of dicts, each with keys "user" (str) and "assistant" (str)
+   - Example  : [{"user": "What is fever?", "assistant": "Fever is ..."}]
+   - Default  : [] (empty list for a fresh conversation)
+
+5. n_results  [OPTIONAL]
+   - Meaning  : Number of top RAG documents to retrieve from the vector store.
+   - Data Type: int
+   - Valid Range: 1 to 20 (recommended: 3–5)
+   - Default  : 3
+
+6. google_api_key  [REQUIRED]
+   - Meaning  : Your Google Gemini API key for response generation.
+   - Data Type: str
+   - Valid Values: A valid Google AI Studio / Vertex AI API key string.
+   - Notes    : Can also be set via the GOOGLE_API_KEY environment variable.
+                If provided in input_data, it overrides the environment variable.
+
+=============================================================================
+OUTPUT FORMAT:
+=============================================================================
+predict() returns a dict:
+  {
+      "status": "success" | "error",
+      "code": 200 | 400 | 500,
+      "message": "<Gemini-generated medical response>",
+      "isSerious": true | false,
+      "shouldCallEmergency": true | false,
+      "rag_documents": ["<matched question 1>", ...],   # top retrieved docs
+      "sources": ["<source 1>", ...]                    # source names
+  }
+
+=============================================================================
+EXAMPLE USAGE:
+=============================================================================
+  load()
+  result = predict({
+      "query": "My child has a rash and fever",
+      "child_info": {"age": "3", "symptoms": "Rash and high fever"},
+      "parent_info": {"observation": "Rash appeared this morning"},
+      "chat_history": [],
+      "n_results": 3,
+      "google_api_key": "YOUR_API_KEY_HERE"
