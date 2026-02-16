@@ -19,3 +19,24 @@ import pandas as pd
 # 15. VitaminA: Child received Vitamin A supplementation. Type=int, values: 0 or 1.
 # 16. IronPill: Child/household received iron pills. Type=int, values: 0 or 1.
 # 17. IntestinalDrug: Child received deworming/intestinal drug. Type=int, values: 0 or 1.
+# 18. ultrasound: Ultrasound done during pregnancy. Type=int, values: 0 or 1.
+# 19. MMR: Child received MMR vaccine indicator. Type=int, values: 0 or 1.
+# 20. DeliveryPlace_Private: Delivery in private facility. Type=int, values: 0 or 1.
+# 21. Water_Source_Other: Water source category is "Other". Type=int, values: 0 or 1.
+# 22. DPT_full: Child completed full DPT schedule. Type=int, values: 0 or 1.
+# 23. MEASLES_full: Child completed measles dose(s). Type=int, values: 0 or 1.
+# 24. State_Bihar: One-hot state flag for Bihar. Type=int, values: 0 or 1.
+# 25. State_Jharkhand: One-hot state flag for Jharkhand. Type=int, values: 0 or 1.
+# 26. State_Meghalaya: One-hot state flag for Meghalaya. Type=int, values: 0 or 1.
+# 27. State_Mizoram: One-hot state flag for Mizoram. Type=int, values: 0 or 1.
+# 28. State_Sikkim: One-hot state flag for Sikkim. Type=int, values: 0 or 1.
+# 29. State_Uttar Pradesh: One-hot state flag for Uttar Pradesh. Type=int, values: 0 or 1.
+# 30. State_Uttarakhand: One-hot state flag for Uttarakhand. Type=int, values: 0 or 1.
+#
+# PREPROCESSING HANDLED IN CODE:
+# - Categorical aliases accepted and converted to one-hot model columns:
+#   delivery_place -> DeliveryPlace_Private, water_source -> Water_Source_Other,
+#   state -> one of the State_* columns (all 0 if not in modeled states).
+# - Direct model-column input is also accepted.
+
+FEATURE_ORDER = [
