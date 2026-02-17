@@ -91,3 +91,97 @@ const App = {
             }
         }
     },
+
+    // ================================================================
+    // Models (background loading)
+    // ================================================================
+    async loadModels() {
+        try {
+            await fetch(API + "/api/load-models", { method: "POST" });
+        } catch (e) {
+            // Server might not be running — that's OK for now
+            console.log("Model loading request failed (server may be offline):", e.message);
+        }
+    },
+
+    // ================================================================
+    // Welcome → Start Setup
+    // ================================================================
+    startSetup() {
+        this.showScreen("screen-parent");
+    },
+
+    // ================================================================
+    // Parent Wizard
+    // ================================================================
+    parentStep(step) {
+        // Validate current step
+        if (step === 2) {
+            const name = document.getElementById("parent-name").value.trim();
+            if (!name) { this.toast("Please enter your name"); return; }
+        }
+
+        // Switch step
+        document.querySelectorAll("#screen-parent .wizard-step").forEach(s => s.classList.remove("active"));
+        const target = document.getElementById("parent-step-" + step);
+        if (target) target.classList.add("active");
+
+        // Update step indicators
+        document.querySelectorAll("#parent-steps .step").forEach(s => {
+            const n = parseInt(s.dataset.step);
+            s.classList.toggle("active", n === step);
+            s.classList.toggle("done", n < step);
+        });
+    },
+
+    saveParent() {
+        const name = document.getElementById("parent-name").value.trim();
+        if (!name) { this.toast("Please enter your name"); this.parentStep(1); return; }
+
+        const healthEl = document.querySelector('input[name="health"]:checked');
+
+        this.state.parent = {
+            name: name,
+            General_Health: parseInt(healthEl ? healthEl.value : 3),
+            Sleep_Hours: parseInt(document.getElementById("parent-sleep").value) || 7,
+            Exercise_Any: parseInt(document.getElementById("parent-exercise").value) || 1,
+            Income_Level: parseInt(document.getElementById("parent-income").value) || 6,
+            Marital_Status: parseInt(document.getElementById("parent-marital").value) || 1,
+            Smoked_100_Cigs: parseInt(document.getElementById("parent-smoke").value) || 2,
+            Physical_Health_Days: parseInt(document.getElementById("parent-phys-days").value) || 0,
+            Mental_Health_Days: parseInt(document.getElementById("parent-mental-days").value) || 0,
+            Depression_Diagnosis: parseInt(document.getElementById("parent-depression").value) || 2,
+            BMI_Indicator: parseFloat(document.getElementById("parent-bmi").value) || 24.5,
+            Alcohol_Days_Monthly: parseInt(document.getElementById("parent-alcohol").value) || 0
+        };
+
+        this.save();
+        this.showScreen("screen-dashboard");
+        this.renderDashboard();
+        this.toast("Profile saved! 🎉");
+
+        // Also run parent assessment in background
+        this.runParentAssessment();
+    },
+
+    async runParentAssessment() {
+        try {
+            const parentData = { ...this.state.parent };
+            delete parentData.name;
+            const res = await fetch(API + "/api/parent-assessment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(parentData)
+            });
+            const result = await res.json();
+            this.state.parent.assessment = result;
+            this.save();
+            this.renderDashboard();
+        } catch (e) {
+            console.log("Parent assessment failed:", e.message);
+        }
+    },
+
+    // ================================================================
+    // Dashboard
+    // ================================================================
