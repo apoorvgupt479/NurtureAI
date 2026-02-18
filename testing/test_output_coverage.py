@@ -43,3 +43,49 @@ CELIAC_CASES = [
     {
         # KEY INSIGHT: model treats Diabetes=Yes+no GI symptoms as non-celiac
         "label": "Diabetic but no GI symptoms -> expect 0 (Negative)",
+        "expect": 0,
+        "data": {
+            "Age": 30, "Gender": "Female",
+            "Diabetes": "Yes", "Diabetes Type": "Type 1",
+            "Diarrhoea": "No", "Abdominal": "No",
+            "Short_Stature": "No", "Sticky_Stool": "No",
+            "Weight_loss": "No",
+            "IgA": 1.5, "IgG": 5.0, "IgM": 0.5
+        }
+    },
+    {
+        "label": "Classic celiac symptoms -> expect 1 (Positive)",
+        "expect": 1,
+        "data": {
+            "Age": 8, "Gender": "Female",
+            "Diabetes": "Yes", "Diabetes Type": "Type 1",
+            "Diarrhoea": "Yes", "Abdominal": "Yes",
+            "Short_Stature": "Yes", "Sticky_Stool": "Yes",
+            "Weight_loss": "Yes",
+            "IgA": 9.5, "IgG": 23.0, "IgM": 4.5
+        }
+    },
+]
+
+celiac_hit = {0: False, 1: False}
+for case in CELIAC_CASES:
+    r = celiac.predict(case["data"])
+    assert r["code"] == 200, f"predict() error: {r}"
+    pred = r["prediction"]
+    hit  = pred == case["expect"]
+    status = PASS if hit else FAIL
+    print(f"  {status}  {case['label']}")
+    print(f"         prediction={pred}  (expected {case['expect']})")
+    celiac_hit[pred] = True
+
+print()
+for cls, found in celiac_hit.items():
+    label = "Negative" if cls == 0 else "Positive"
+    print(f"  {PASS if found else FAIL}  class {cls} ({label}) was observed")
+coverage_results["celiac"] = celiac_hit
+
+
+# ===========================================================
+# 2. BEHAVIOUR — 3 classes
+# ===========================================================
+section("2. BEHAVIOUR — 3 classes")
