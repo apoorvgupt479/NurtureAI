@@ -89,3 +89,48 @@ coverage_results["celiac"] = celiac_hit
 # 2. BEHAVIOUR — 3 classes
 # ===========================================================
 section("2. BEHAVIOUR — 3 classes")
+
+beh_pkl = os.path.join(BASE_DIR, "behaviour_analysis", "nurture_model.pkl")
+beh = _import("behaviour_model", os.path.join(BASE_DIR, "behaviour_analysis", "nurture_model.py"))
+beh.load(pkl_path=beh_pkl)
+
+BEHAVIOUR_CLASSES = [
+    "Healthy Home Environment",
+    "Moderate Risk Environment",
+    "High Risk Environment",
+]
+
+BEHAVIOUR_CASES = [
+    {
+        "label": "Excellent health/lifestyle -> Healthy Home Environment",
+        "expect": "Healthy Home Environment",
+        "data": {
+            "General_Health": 1, "Sleep_Hours": 8, "Exercise_Any": 1,
+            "Smoked_100_Cigs": 2, "Income_Level": 8, "Marital_Status": 1,
+            "Physical_Health_Days": 0, "Mental_Health_Days": 0,
+            "Depression_Diagnosis": 2, "BMI_Indicator": 22.0, "Alcohol_Days_Monthly": 0
+        }
+    },
+    {
+        "label": "Mixed lifestyle indicators -> Moderate Risk Environment",
+        "expect": "Moderate Risk Environment",
+        "data": {
+            "General_Health": 3, "Sleep_Hours": 6, "Exercise_Any": 2,
+            "Smoked_100_Cigs": 1, "Income_Level": 4, "Marital_Status": 2,
+            "Physical_Health_Days": 8, "Mental_Health_Days": 10,
+            "Depression_Diagnosis": 1, "BMI_Indicator": 27.5, "Alcohol_Days_Monthly": 12
+        }
+    },
+    {
+        "label": "Poor health, high risk -> High Risk Environment",
+        "expect": "High Risk Environment",
+        "data": {
+            "General_Health": 5, "Sleep_Hours": 4, "Exercise_Any": 2,
+            "Smoked_100_Cigs": 1, "Income_Level": 1, "Marital_Status": 4,
+            "Physical_Health_Days": 28, "Mental_Health_Days": 28,
+            "Depression_Diagnosis": 1, "BMI_Indicator": 38.0, "Alcohol_Days_Monthly": 25
+        }
+    },
+]
+
+beh_hit = {c: False for c in BEHAVIOUR_CLASSES}
