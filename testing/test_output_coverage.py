@@ -134,3 +134,49 @@ BEHAVIOUR_CASES = [
 ]
 
 beh_hit = {c: False for c in BEHAVIOUR_CLASSES}
+for case in BEHAVIOUR_CASES:
+    r = beh.predict(case["data"])
+    assert r["status"] == 200, f"predict() error: {r}"
+    pred  = r["prediction"]
+    hit   = pred == case["expect"]
+    top_conf = sorted(r["confidence"].items(), key=lambda x: -x[1])
+    status = PASS if hit else FAIL
+    print(f"  {status}  {case['label']}")
+    print(f"         got: {pred}  (expected: {case['expect']})")
+    print(f"         confidence: { {k: round(v,3) for k,v in top_conf} }")
+    if pred in beh_hit:
+        beh_hit[pred] = True
+
+print()
+for cls, found in beh_hit.items():
+    print(f"  {PASS if found else FAIL}  class '{cls}' was observed")
+coverage_results["behaviour"] = beh_hit
+
+
+# ===========================================================
+# 3. CHILD MORTALITY — output: 1 (Alive/Low risk) or 0 (Dead/High risk)
+# ===========================================================
+section("3. CHILD MORTALITY — output classes: 1=Low risk, 0=High risk")
+
+child = _import("child_health_model",
+                os.path.join(BASE_DIR, "child_mortality", "child_health_model.py"))
+child.load()
+
+def _child_base():
+    return {feat: 0 for feat in child.FEATURE_ORDER}
+
+CHILD_CASES = [
+    {
+        "label": "Ideal conditions, full vaccination -> expect 1 (Alive / low risk)",
+        "expect": 1,
+        "data": {
+            **_child_base(),
+            "Toilet_Facility": 1, "Child_under5": 1, "Tot_child_born": 1,
+            "Sons_died": 0, "Daughters_died": 0,
+            "Curr_Preg": 0, "Curr_BrstFeed": 1, "ChildFood_bottle": 0,
+            "Resp_height": 170.0, "HealthInsurance": 1, "B_ChildTwin": 0,
+            "First3Day_fruitJuice": 0, "HepatitisB_atBirth": 1,
+            "ShortBreaths": 0, "VitaminA": 1, "IronPill": 1,
+            "IntestinalDrug": 1, "ultrasound": 1, "MMR": 1,
+            "DeliveryPlace_Private": 1, "Water_Source_Other": 0,
+            "DPT_full": 1, "MEASLES_full": 1,
