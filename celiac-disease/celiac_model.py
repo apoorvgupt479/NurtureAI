@@ -19,3 +19,24 @@ INPUT FEATURES REQUIRED:
    - Data Type: string
    - Possible Values: "Male", "Female"
 
+3. Diabetes
+   - Meaning: Indicates if the patient has a history of diabetes.
+   - Data Type: string
+   - Possible Values: "Yes", "No"
+
+4. Diabetes Type
+   - Meaning: The specific classification of diabetes if present.
+   - Data Type: string
+   - Possible Values: "Type 1", "Type 2", "Unknown" (if no diabetes)
+
+5. Diarrhoea
+   - Meaning: Presence of chronic or persistent diarrhoea.
+   - Data Type: string
+   - Possible Values: "Yes", "No"
+
+6. Abdominal
+   - Meaning: Presence of abdominal pain or discomfort.
+   - Data Type: string
+   - Possible Values: "Yes", "No"
+
+7. Short_Stature
