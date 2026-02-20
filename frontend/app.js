@@ -185,3 +185,96 @@ const App = {
     // ================================================================
     // Dashboard
     // ================================================================
+    renderDashboard() {
+        if (!this.state.parent) return;
+
+        const greeting = document.getElementById("dash-greeting");
+        greeting.textContent = `Welcome, ${this.state.parent.name}! 👋`;
+
+        // Parent card
+        const badge = document.getElementById("parent-badge");
+        const status = document.getElementById("parent-card-status");
+        const pName = document.getElementById("parent-card-name");
+        pName.textContent = this.state.parent.name;
+
+        if (this.state.parent.assessment) {
+            const pred = this.state.parent.assessment.prediction || "";
+            status.textContent = pred;
+            if (pred.toLowerCase().includes("healthy")) {
+                badge.textContent = "✓";
+                badge.className = "badge badge-green";
+            } else if (pred.toLowerCase().includes("moderate") || pred.toLowerCase().includes("mild")) {
+                badge.textContent = "!";
+                badge.className = "badge badge-yellow";
+            } else if (pred.toLowerCase().includes("high") || pred.toLowerCase().includes("severe")) {
+                badge.textContent = "⚠";
+                badge.className = "badge badge-red";
+            } else {
+                badge.textContent = "✓";
+                badge.className = "badge badge-green";
+                status.textContent = "Profile complete";
+            }
+        } else {
+            status.textContent = "Profile complete";
+        }
+
+        // Children list
+        const list = document.getElementById("children-list");
+        const empty = document.getElementById("no-children");
+        list.innerHTML = "";
+
+        if (this.state.children.length === 0) {
+            empty.style.display = "block";
+        } else {
+            empty.style.display = "none";
+            this.state.children.forEach(child => {
+                const icon = child.ageGroup === "infant" ? "👶" : "🧒";
+                const ageText = child.ageGroup === "infant" ? "Under 1 year" : `${child.age} years old`;
+                const lastResult = child.lastResult ? this.getResultBadge(child) : '<span class="child-action">Assess →</span>';
+
+                const div = document.createElement("div");
+                div.className = "child-card";
+                div.onclick = (e) => {
+                    if (e.target.closest('.celiac-btn')) return;
+                    this.startChildAssessment(child.id);
+                };
+                div.innerHTML = `
+                    <span class="child-icon">${icon}</span>
+                    <div class="child-info">
+                        <div class="child-name">${child.name}</div>
+                        <div class="child-age">${ageText} · ${child.sex === 0 ? "Female" : "Male"}</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
+                        ${lastResult}
+                        <button class="btn btn-ghost celiac-btn" style="padding:4px 8px; font-size:0.8rem" onclick="App.startCeliacAssessment('${child.id}')">Celiac Screen</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+    },
+
+    getResultBadge(child) {
+        if (!child.lastResult) return "";
+        const r = child.lastResult;
+
+        // For nurture model
+        if (r.prediction && r.prediction.risk_label) {
+            const label = r.prediction.risk_label;
+            if (label.includes("Healthy") || label.includes("None")) return '<span class="badge badge-green">✓</span>';
+            if (label.includes("Mild") || label.includes("Moderate")) return '<span class="badge badge-yellow">!</span>';
+            return '<span class="badge badge-red">⚠</span>';
+        }
+
+        // For child_mortality: 1 = Low Risk (Alive), 0 = High Risk (Dead)
+        if (r.prediction !== undefined && r.prediction_status === undefined) {
+            return r.prediction === 1
+                ? '<span class="badge badge-green">✓</span>'
+                : '<span class="badge badge-red">⚠</span>';
+        }
+
+        return '<span class="child-action">Assess →</span>';
+    },
+
+    // ================================================================
+    // Add Child
