@@ -83,3 +83,46 @@ EXAMPLE USAGE:
       "chat_history": [],
       "n_results": 3,
       "google_api_key": "YOUR_API_KEY_HERE"
+  })
+  print(result)
+
+=============================================================================
+"""
+
+import numpy as np
+if not hasattr(np, 'iterable'):
+    np.iterable = lambda x: hasattr(x, '__iter__')
+
+import os
+import pickle
+import json
+import copy
+
+# Global state
+_chroma_collection = None
+_chroma_client = None
+_pkl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chroma_full_state.pkl")
+
+# ---------------------------------------------------------------------------
+# LOAD FUNCTION
+# ---------------------------------------------------------------------------
+def load(pkl_path: str = None) -> dict:
+    """
+    Loads the chroma_full_state.pkl archive into an in-memory ChromaDB
+    collection so it is ready for querying.
+
+    Args:
+        pkl_path (str, optional): Absolute or relative path to the .pkl file.
+                                  Defaults to chroma_full_state.pkl in the
+                                  same directory as this script.
+
+    Returns:
+        dict: {"status": "success", "code": 200, "message": "..."}
+              or {"status": "error",   "code": 500, "message": "<error>"}
+    """
+    global _chroma_collection, _chroma_client, _pkl_path
+
+    try:
+        import chromadb
+    except ImportError:
+        return {
