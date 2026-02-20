@@ -126,3 +126,46 @@ def load(pkl_path: str = None) -> dict:
         import chromadb
     except ImportError:
         return {
+            "status": "error",
+            "code": 500,
+            "message": "chromadb is not installed. Run: pip install chromadb"
+        }
+
+    # Resolve path
+    if pkl_path:
+        _pkl_path = pkl_path
+
+    if not os.path.exists(_pkl_path):
+        return {
+            "status": "error",
+            "code": 500,
+            "message": f"PKL file not found at: {_pkl_path}"
+        }
+
+    try:
+        # Load archive
+        with open(_pkl_path, "rb") as f:
+            archive = pickle.load(f)
+
+        # Validate archive keys
+        required_keys = {"ids", "embeddings", "documents", "metadatas"}
+        missing = required_keys - set(archive.keys())
+        if missing:
+            return {
+                "status": "error",
+                "code": 500,
+                "message": f"PKL archive is missing keys: {missing}"
+            }
+
+        # Build in-memory ChromaDB collection
+        _chroma_client = chromadb.Client()
+        col_name = "medquad_chatbot"
+
+        # Clear any previous collection
+        try:
+            _chroma_client.delete_collection(col_name)
+        except Exception:
+            pass
+
+        _chroma_collection = _chroma_client.create_collection(name=col_name)
+
