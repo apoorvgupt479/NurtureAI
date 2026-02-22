@@ -156,3 +156,83 @@ body {
 .btn-block { width: 100%; }
 .btn-row {
     display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+.btn-row .btn { flex: 1; }
+.btn-back {
+    background: none;
+    border: none;
+    font-family: var(--font);
+    font-size: 0.95rem;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 12px;
+    transition: color var(--transition);
+}
+.btn-back:hover { color: var(--primary); }
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background var(--transition);
+}
+.btn-icon:hover { background: var(--primary-light); }
+.btn-submit {
+    background: linear-gradient(135deg, var(--success), #00D2A0) !important;
+    box-shadow: 0 4px 15px rgba(0,184,148,0.3) !important;
+}
+.btn-submit:hover {
+    box-shadow: 0 6px 20px rgba(0,184,148,0.4) !important;
+}
+
+/* ---- Cards ---- */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+    animation: slideUp 0.4s ease;
+}
+.card-icon {
+    font-size: 2.4rem;
+    margin-bottom: 8px;
+}
+.card-icon-sm { font-size: 1.8rem; }
+.card h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.card-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.card-row h3 { font-size: 1rem; font-weight: 600; }
+.card-label { font-size: 0.85rem; color: var(--text-light); }
+.card-parent { border-left: 4px solid var(--secondary); }
+
+/* Badge */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: auto;
+}
+.badge-green { background: var(--success-light); color: var(--success); }
+.badge-yellow { background: var(--warning-light); color: #D68910; }
+.badge-red { background: var(--danger-light); color: var(--danger); }
+
+/* Child Cards */
+.child-card {
+    background: var(--bg-card);

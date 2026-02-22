@@ -40,3 +40,24 @@ INPUT FEATURES REQUIRED:
    - Possible Values: "Yes", "No"
 
 7. Short_Stature
+   - Meaning: Clinical observation of significantly below-average height.
+   - Data Type: string
+   - Possible Values: "Yes", "No"
+
+8. Sticky_Stool
+   - Meaning: Presence of steatorrhea or unusually sticky/greasy stools.
+   - Data Type: string
+   - Possible Values: "Yes", "No"
+
+9. Weight_loss
+   - Meaning: Unexplained or significant reduction in body weight.
+   - Data Type: string
+   - Possible Values: "Yes", "No"
+
+10. IgA
+    - Meaning: Immunoglobulin A level (serological marker).
+    - Data Type: float
+    - Valid Range: 0.0 to 10.0
+
+11. IgG
+    - Meaning: Immunoglobulin G level (serological marker).
