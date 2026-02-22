@@ -235,3 +235,122 @@ if 'X_train' not in locals() or 'y_train' not in locals() or 'X_test' not in loc
     initial_model_for_selection = LogisticRegression(random_state=42, solver='liblinear', max_iter=1000)
     initial_model_for_selection.fit(X_train_original, y_train)
     selector = SelectFromModel(initial_model_for_selection, prefit=True, max_features=30, threshold=-np.inf)
+
+    X_train = pd.DataFrame(selector.transform(X_train_original), columns=X_full.columns[selector.get_support()])
+    X_test = pd.DataFrame(selector.transform(X_test_original), columns=X_full.columns[selector.get_support()])
+    selected_feature_names = X_full.columns[selector.get_support()]
+    print(f"X_train shape: {X_train.shape}, X_test shape: {X_test.shape}")
+
+
+# Initialize and train a Decision Tree Classifier
+dt_classifier = DecisionTreeClassifier(random_state=42)
+dt_classifier.fit(X_train, y_train)
+
+print("Decision Tree Classifier trained successfully.")
+
+# Make predictions on the test set
+y_pred_dt = dt_classifier.predict(X_test)
+
+# Generate and print the classification report
+print("\nClassification Report for Decision Tree Classifier:")
+print(classification_report(y_test, y_pred_dt))
+
+dt_report = classification_report(y_test, y_pred_dt, output_dict=True)
+
+# --- CELL ---
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import SelectFromModel
+import pandas as pd
+import numpy as np
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
+
+# Re-create necessary variables (X_train, y_train, X_test, y_test) if not defined
+# This assumes 'X', 'y' are defined from Data Cleaning & Preprocessing (cell c67ae3a2)
+# and 'selected_feature_names' from Feature Selection (cell 65014b0c)
+if 'X_train' not in locals() or 'y_train' not in locals() or 'X_test' not in locals() or 'y_test' not in locals() or 'df' not in globals():
+    print("Re-creating X_train, y_train, X_test, y_test for Random Forest Classifier...")
+    # 1. Get original X, y (assuming df and original_feature_columns are available)
+    if 'df' not in globals():
+        print("DataFrame 'df' not found. Reloading dataset.")
+        try:
+            # Replicate data loading from cell 17b27236
+            df = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS, "ravisinghiitbhu/nfhs5", "Final.csv")
+            print("Dataset reloaded successfully.")
+        except Exception as e:
+            print(f"Error reloading dataset in Random Forest cell: {e}")
+            # If data loading fails, we cannot proceed. Raise an error.
+            raise
+
+    # Assuming df is now available
+    X_full = df.drop('ChildAlive', axis=1)
+    y_full = df['ChildAlive']
+    X_full = pd.get_dummies(X_full, columns=['State'], drop_first=False)
+
+    # 2. Re-split to get X_train_original and X_test_original before selection
+    X_train_original, X_test_original, y_train, y_test = train_test_split(X_full, y_full, test_size=0.2, random_state=42, stratify=y_full)
+
+    # 3. Re-apply feature selection to X_train_original and X_test_original
+    initial_model_for_selection = LogisticRegression(random_state=42, solver='liblinear', max_iter=1000)
+    initial_model_for_selection.fit(X_train_original, y_train)
+    selector = SelectFromModel(initial_model_for_selection, prefit=True, max_features=30, threshold=-np.inf)
+
+    X_train = pd.DataFrame(selector.transform(X_train_original), columns=X_full.columns[selector.get_support()])
+    X_test = pd.DataFrame(selector.transform(X_test_original), columns=X_full.columns[selector.get_support()])
+    selected_feature_names = X_full.columns[selector.get_support()]
+    print(f"X_train shape: {X_train.shape}, X_test shape: {X_test.shape}")
+
+# Initialize and train a Random Forest Classifier
+rf_classifier = RandomForestClassifier(random_state=42, n_estimators=100)
+rf_classifier.fit(X_train, y_train)
+
+print("Random Forest Classifier trained successfully.")
+
+# Make predictions on the test set
+y_pred_rf = rf_classifier.predict(X_test)
+
+# Generate and print the classification report
+print("\nClassification Report for Random Forest Classifier:")
+print(classification_report(y_test, y_pred_rf))
+
+rf_report = classification_report(y_test, y_pred_rf, output_dict=True)
+
+# --- CELL ---
+
+import pandas as pd
+from sklearn.metrics import classification_report
+
+# Initialize reports with placeholder values
+# These will be used if actual data or predictions are not available
+default_report = {
+    '0': {'precision': 0.0, 'recall': 0.0, 'f1-score': 0.0, 'support': 0},
+    '1': {'precision': 0.0, 'recall': 0.0, 'f1-score': 0.0, 'support': 0},
+    'accuracy': 0.0,
+    'macro avg': {'precision': 0.0, 'recall': 0.0, 'f1-score': 0.0, 'support': 0},
+    'weighted avg': {'precision': 0.0, 'recall': 0.0, 'f1-score': 0.0, 'support': 0}
+}
+lr_report = default_report.copy()
+dt_report = default_report.copy()
+rf_report = default_report.copy()
+
+# Check if y_test is available
+if 'y_test' not in locals():
+    print("y_test not found. Please ensure the data splitting cells are run.")
+else:
+    # If y_test is defined, try to get actual reports
+    # Logistic Regression Report
+    if 'y_pred_selected' in locals():
+        lr_report = classification_report(y_test, y_pred_selected, output_dict=True)
+    else:
+        print("lr_report and y_pred_selected not found. Using default placeholder for Logistic Regression.")
+        # Use the predefined lr_report (which is default_report.copy())
+
+    # Decision Tree Report
+    if 'y_pred_dt' in locals():
+        dt_report = classification_report(y_test, y_pred_dt, output_dict=True)
+    else:
+        print("dt_report and y_pred_dt not found. Using default placeholder for Decision Tree.")
+        # Use the predefined dt_report (which is default_report.copy())

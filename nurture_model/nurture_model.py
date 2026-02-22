@@ -38,3 +38,43 @@
 #
 #  behavior_score: A 0–100 composite lifestyle score (higher = healthier)
 #  ─────────────────────────────────────────────────────────────────────────────
+#
+#  📦 HOW TO USE:
+#    from nurture_model import load, predict
+#    response = load()                    # Step 1: Load the model
+#    result   = predict(your_input_dict) # Step 2: Pass the child's data
+# =============================================================================
+
+
+import os          # Used to check if the .pkl file exists on disk
+import pickle      # Used to load the saved model from the .pkl file
+import numpy as np # For math operations (used in behavior score calculation)
+import pandas as pd  # For creating a structured data table (DataFrame)
+
+# ── Path to the saved model file ──────────────────────────────────────────────
+# This assumes nurture_model.pkl is in the SAME folder as this script.
+# If it's somewhere else, update this path.
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "nurture_model.pkl")
+
+# ── A global variable to hold the loaded model in memory ─────────────────────
+# We keep this here so we don't reload from disk every single time predict() runs.
+_model_bundle = None   # None means "not loaded yet"
+
+
+# =============================================================================
+#  FUNCTION 1: load()
+#  Purpose : Load the trained model from the .pkl file into memory.
+#  Returns : {"status": "ok", "code": 200}  if successful
+#            {"status": "error", "message": "...", "code": 500}  if something fails
+# =============================================================================
+def load():
+    """
+    Loads the model from the nurture_model.pkl file into memory.
+    Call this ONCE before calling predict().
+    """
+    global _model_bundle   # We want to update the global variable, not create a new local one
+
+    try:
+        # Check if the .pkl file actually exists before trying to open it
+        if not os.path.exists(MODEL_PATH):
+            return {
