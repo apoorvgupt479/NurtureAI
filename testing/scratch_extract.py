@@ -116,3 +116,122 @@ print("Model saved successfully!")
 
 import pickle
 
+# Save expected feature columns
+with open("model_expected_columns.pkl", "wb") as f:
+    pickle.dump(X.columns.tolist(), f)
+
+print("Expected columns saved!")
+
+# --- CELL ---
+
+# Make predictions on the test set using the model with selected features
+y_pred_selected = selected_model.predict(X_test)
+
+# Generate and print the classification report
+print("Classification Report using Selected Features:")
+print(classification_report(y_test, y_pred_selected))
+
+# --- CELL ---
+
+# Get feature names from the selected training data
+feature_names = X_train.columns
+
+# Get the coefficients from the trained Logistic Regression model
+coefficients = selected_model.coef_[0]
+
+# Create a DataFrame to store feature names and their coefficients
+feature_importance = pd.DataFrame({'Feature': feature_names, 'Coefficient': coefficients})
+
+# Calculate the absolute value of coefficients for ranking significance
+feature_importance['Abs_Coefficient'] = abs(feature_importance['Coefficient'])
+
+# Sort by absolute coefficient in descending order
+feature_importance = feature_importance.sort_values(by='Abs_Coefficient', ascending=False)
+
+# Display the most significant features
+print("Most Significant Features (after selection):")
+display(feature_importance.head(len(feature_importance)))
+
+# --- CELL ---
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd # Ensure pandas is imported
+
+# Check if feature_importance is defined, if not, re-calculate it
+if 'feature_importance' not in globals():
+    print("feature_importance not found, re-calculating from selected_model and X_train.")
+    # Assuming selected_model and X_train are available from previous cells
+    if 'selected_model' in globals() and 'X_train' in globals():
+        feature_names = X_train.columns
+        coefficients = selected_model.coef_[0]
+        feature_importance = pd.DataFrame({'Feature': feature_names, 'Coefficient': coefficients})
+        feature_importance['Abs_Coefficient'] = abs(feature_importance['Coefficient'])
+        feature_importance = feature_importance.sort_values(by='Abs_Coefficient', ascending=False)
+    else:
+        print("Could not re-calculate feature_importance: selected_model or X_train not found. Please run relevant model training and feature selection cells.")
+
+# Visualize the top N features, only if feature_importance is available
+if 'feature_importance' in globals():
+    plt.figure(figsize=(12, 8))
+    sns.barplot(x='Abs_Coefficient', y='Feature', data=feature_importance.head(15), palette='viridis')
+    plt.title('Top 15 Most Significant Features (Logistic Regression)')
+    plt.xlabel('Absolute Coefficient Value')
+    plt.ylabel('Feature')
+    plt.show()
+else:
+    print("Skipping feature importance plot due to missing 'feature_importance' DataFrame.")
+
+# --- CELL ---
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Calculate the correlation matrix for the selected features
+correlation_matrix = X_train.corr()
+
+plt.figure(figsize=(15, 12))
+sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm', fmt=".2f", linewidths=.5)
+plt.title('Correlation Heatmap of Selected Features', fontsize=16)
+plt.show()
+
+# --- CELL ---
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import SelectFromModel
+import pandas as pd
+import numpy as np
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
+
+# Re-create necessary variables (X_train, y_train, X_test, y_test) if not defined
+# This assumes 'X', 'y' are defined from Data Cleaning & Preprocessing (cell c67ae3a2)
+# and 'selected_feature_names' from Feature Selection (cell 65014b0c)
+if 'X_train' not in locals() or 'y_train' not in locals() or 'X_test' not in locals() or 'y_test' not in locals() or 'df' not in globals():
+    print("Re-creating X_train, y_train, X_test, y_test for Decision Tree Classifier...")
+    # 1. Get original X, y (assuming df and original_feature_columns are available)
+    if 'df' not in globals():
+        print("DataFrame 'df' not found. Reloading dataset.")
+        try:
+            # Replicate data loading from cell 17b27236
+            df = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS, "ravisinghiitbhu/nfhs5", "Final.csv")
+            print("Dataset reloaded successfully.")
+        except Exception as e:
+            print(f"Error reloading dataset in Decision Tree cell: {e}")
+            # If data loading fails, we cannot proceed. Raise an error.
+            raise
+
+    # Assuming df is now available
+    X_full = df.drop('ChildAlive', axis=1)
+    y_full = df['ChildAlive']
+    X_full = pd.get_dummies(X_full, columns=['State'], drop_first=False)
+
+    # 2. Re-split to get X_train_original and X_test_original before selection
+    X_train_original, X_test_original, y_train, y_test = train_test_split(X_full, y_full, test_size=0.2, random_state=42, stratify=y_full)
+
+    # 3. Re-apply feature selection to X_train_original and X_test_original
+    initial_model_for_selection = LogisticRegression(random_state=42, solver='liblinear', max_iter=1000)
+    initial_model_for_selection.fit(X_train_original, y_train)
+    selector = SelectFromModel(initial_model_for_selection, prefit=True, max_features=30, threshold=-np.inf)
