@@ -61,3 +61,25 @@ INPUT FEATURES REQUIRED:
 
 11. IgG
     - Meaning: Immunoglobulin G level (serological marker).
+    - Data Type: float
+    - Valid Range: 0.0 to 25.0
+
+12. IgM
+    - Meaning: Immunoglobulin M level (serological marker).
+    - Data Type: float
+    - Valid Range: 0.0 to 5.0
+
+=============================================================================
+"""
+
+import pickle
+import numpy as np
+
+# Global variables
+model = None
+
+# Encoding mappings (IMPORTANT: must match training)
+encoders = {
+    "Gender": {"Male": 1, "Female": 0},
+    "Diabetes": {"No": 0, "Yes": 1},
+    "Diabetes Type": {"Unknown": 0, "Type 1": 1, "Type 2": 2},
