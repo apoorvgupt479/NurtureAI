@@ -77,3 +77,82 @@
                 <div class="form-group">
                     <label for="parent-sleep">How many hours do you sleep per night?</label>
                     <p class="helper-sm">Optimal is 7–9 hours. Sleep affects parenting energy!</p>
+                    <div class="stepper">
+                        <button class="stepper-btn" onclick="App.adjustStepper('parent-sleep',-1)">−</button>
+                        <input type="number" id="parent-sleep" value="7" min="1" max="18">
+                        <button class="stepper-btn" onclick="App.adjustStepper('parent-sleep',1)">+</button>
+                        <span class="stepper-unit">hrs</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Do you exercise regularly?</label>
+                    <p class="helper-sm">Even 15-min walks count!</p>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-field="parent-exercise" data-value="1" onclick="App.toggleSelect(this)">Yes ✓</button>
+                        <button class="toggle-btn" data-field="parent-exercise" data-value="2" onclick="App.toggleSelect(this)">No</button>
+                    </div>
+                    <input type="hidden" id="parent-exercise" value="1">
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" onclick="App.parentStep(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="App.parentStep(3)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Lifestyle -->
+        <div class="wizard-step" id="parent-step-3">
+            <div class="card">
+                <div class="card-icon">🏠</div>
+                <h2>Lifestyle</h2>
+                <p class="helper">A few more details to complete your profile.</p>
+
+                <div class="form-group">
+                    <label for="parent-income">Household Income Bracket</label>
+                    <p class="helper-sm">Helps us suggest free vs. premium resources.</p>
+                    <select id="parent-income">
+                        <option value="1">Less than $10,000</option>
+                        <option value="2">Less than $15,000</option>
+                        <option value="3">Less than $20,000</option>
+                        <option value="4">Less than $25,000</option>
+                        <option value="5">Less than $35,000</option>
+                        <option value="6" selected>Less than $50,000</option>
+                        <option value="7">Less than $75,000</option>
+                        <option value="8">$75,000 or more</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="parent-marital">Marital Status</label>
+                    <select id="parent-marital">
+                        <option value="1" selected>Married</option>
+                        <option value="2">Divorced</option>
+                        <option value="3">Widowed</option>
+                        <option value="4">Separated</option>
+                        <option value="5">Never married</option>
+                        <option value="6">Unmarried couple</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Have you ever smoked 100+ cigarettes?</label>
+                    <p class="helper-sm">Second-hand smoke affects child health.</p>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="parent-smoke" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn active" data-field="parent-smoke" data-value="2" onclick="App.toggleSelect(this)">No ✓</button>
+                    </div>
+                    <input type="hidden" id="parent-smoke" value="2">
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" onclick="App.parentStep(2)">← Back</button>
+                    <button class="btn btn-primary" onclick="App.parentStep(4)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Extended Health -->
+        <div class="wizard-step" id="parent-step-4">
+            <div class="card">
