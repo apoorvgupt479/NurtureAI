@@ -180,3 +180,48 @@ CHILD_CASES = [
             "IntestinalDrug": 1, "ultrasound": 1, "MMR": 1,
             "DeliveryPlace_Private": 1, "Water_Source_Other": 0,
             "DPT_full": 1, "MEASLES_full": 1,
+        }
+    },
+    {
+        "label": "High-risk child (no vaccines, multiple deaths) -> expect 0 (Dead / high risk)",
+        "expect": 0,
+        "data": {
+            **_child_base(),
+            "Toilet_Facility": 0, "Child_under5": 5, "Tot_child_born": 9,
+            "Sons_died": 3, "Daughters_died": 3,
+            "Curr_Preg": 1, "Curr_BrstFeed": 0, "ChildFood_bottle": 1,
+            "Resp_height": 145.0, "HealthInsurance": 0, "B_ChildTwin": 1,
+            "First3Day_fruitJuice": 1, "HepatitisB_atBirth": 0,
+            "ShortBreaths": 1, "VitaminA": 0, "IronPill": 0,
+            "IntestinalDrug": 0, "ultrasound": 0, "MMR": 0,
+            "DeliveryPlace_Private": 0, "Water_Source_Other": 1,
+            "DPT_full": 0, "MEASLES_full": 0,
+            "State_Bihar": 1,
+        }
+    },
+]
+
+child_hit = {0: False, 1: False}
+
+for case in CHILD_CASES:
+    r = child.predict(case["data"])
+    assert r["code"] == 200, f"predict() error: {r}"
+    pred  = r["prediction"]
+    prob  = round(r.get("probability_class_1", -1), 3)
+    hit   = pred == case["expect"]
+    status = PASS if hit else FAIL
+    print(f"  {status}  {case['label']}")
+    print(f"         prediction={pred}  prob_class_1={prob}  (expected {case['expect']})")
+    child_hit[pred] = True
+
+print()
+for cls, found in child_hit.items():
+    label = "High risk (Dead)" if cls == 0 else "Low risk (Alive)"
+    print(f"  {PASS if found else FAIL}  class {cls} ({label}) was observed")
+coverage_results["child_mortality"] = child_hit
+
+
+# ===========================================================
+# 4. NURTURE MODEL — 4 classes: sii = 0,1,2,3
+# ===========================================================
+section("4. NURTURE MODEL — sii classes: 0=None, 1=Mild, 2=Moderate, 3=Severe")
