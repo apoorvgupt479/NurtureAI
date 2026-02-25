@@ -78,3 +78,43 @@ def load():
         # Check if the .pkl file actually exists before trying to open it
         if not os.path.exists(MODEL_PATH):
             return {
+                "status": "error",
+                "message": f"Model file not found at: {MODEL_PATH}. "
+                           "Make sure nurture_model.pkl is in the same folder as this script.",
+                "code": 404
+            }
+
+        # Open the .pkl file in binary-read mode ("rb") and load it using pickle
+        with open(MODEL_PATH, "rb") as f:
+            _model_bundle = pickle.load(f)   # This gives us a dict with {"model", "feature_names", "imputer"}
+
+        # Quick sanity check — make sure all expected keys are present inside the loaded file
+        required_keys = {"model", "feature_names", "raw_medians", "raw_feat_cols"}
+        if not required_keys.issubset(_model_bundle.keys()):
+            missing = required_keys - _model_bundle.keys()
+            return {
+                "status": "error",
+                "message": f"Corrupted .pkl file. Missing keys: {missing}",
+                "code": 500
+            }
+
+        # If everything worked, return success
+        return {"status": "ok", "code": 200}
+
+    except Exception as e:
+        # Catch any unexpected error (file corrupt, wrong format, etc.)
+        return {"status": "error", "message": str(e), "code": 500}
+
+
+# =============================================================================
+#  HELPER FUNCTION: _compute_behavior_score()
+#  Purpose : Calculate a 0–100 composite lifestyle score from raw input values.
+#            This is NOT a model prediction — it's a human-readable health indicator.
+#  Weights : 35% sleep + 35% activity + 20% fitness + 10% BMI deviation
+# =============================================================================
+def _compute_behavior_score(data: dict) -> float:
+    """
+    Calculates a lifestyle Behavior Score (0–100) from the input dictionary.
+    Higher score = healthier lifestyle.
+    """
+    # ── Sleep component (35 points) ────────────────────────────────────────
