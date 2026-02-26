@@ -34,3 +34,39 @@
 #                       |       |                        | in their lifetime?
 #                       |       |                        |   1 = Yes
 #                       |       |                        |   2 = No
+#   --------------------|-------|------------------------|------------------------------------------
+#   Income_Level        | int   | 1, 2, 3, 4, 5, 6, 7, 8| Household income bracket
+#                       |       |                        |   1 = Less than $10,000
+#                       |       |                        |   2 = Less than $15,000
+#                       |       |                        |   3 = Less than $20,000
+#                       |       |                        |   4 = Less than $25,000
+#                       |       |                        |   5 = Less than $35,000
+#                       |       |                        |   6 = Less than $50,000
+#                       |       |                        |   7 = Less than $75,000
+#                       |       |                        |   8 = $75,000 or more
+#   --------------------|-------|------------------------|------------------------------------------
+#   Marital_Status      | int   | 1, 2, 3, 4, 5, 6      | Current marital status
+#                       |       |                        |   1 = Married
+#                       |       |                        |   2 = Divorced
+#                       |       |                        |   3 = Widowed
+#                       |       |                        |   4 = Separated
+#                       |       |                        |   5 = Never married
+#                       |       |                        |   6 = A member of an unmarried couple
+#
+# ============================================================
+# OPTIONAL EXTENDED FEATURES (for detailed risk scoring)
+# ============================================================
+#
+#   Feature                | Type  | Valid Values  | Description
+#   -----------------------|-------|---------------|------------------------------------------
+#   Physical_Health_Days   | int   | 0 to 30       | Days of poor physical health (past 30 days)
+#   Mental_Health_Days     | int   | 0 to 30       | Days of poor mental health (past 30 days)
+#   Depression_Diagnosis   | int   | 1 or 2        | Ever told you have depressive disorder?
+#                          |       |               |   1 = Yes, 2 = No
+#   BMI_Indicator          | float | ~15.0 to 60.0 | Body Mass Index
+#   Alcohol_Days_Monthly   | int   | 0 to 30       | Days of alcohol consumption per month
+#
+# ============================================================
+# OUTPUT FORMAT
+# ============================================================
+#

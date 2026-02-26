@@ -104,3 +104,24 @@ def load():
         return {
             "status": "success",
             "code": 200,
+            "message": "Model loaded successfully"
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "code": 500,
+            "message": str(e)
+        }
+
+
+# -----------------------------------
+# PREDICT FUNCTION
+# -----------------------------------
+def predict(input_data):
+    global model
+
+    try:
+        if model is None:
+            return {
+                "status": "error",
