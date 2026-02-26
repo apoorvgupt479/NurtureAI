@@ -40,3 +40,25 @@ def run_tests():
                 "Diarrhoea": "No",
                 "Abdominal": "No",
                 "Short_Stature": "No",
+                "Sticky_Stool": "No",
+                "Weight_loss": "No",
+                "IgA": 1.2,
+                "IgG": 7.5,
+                "IgM": 0.8
+            }
+        }
+    ]
+
+    print("\n--- Running Predictions ---")
+    for case in test_cases:
+        print(f"\nTesting: {case['name']}")
+        result = celiac_model.predict(case["data"])
+        
+        if result["status"] == "success":
+            diagnosis = "Positive" if result["prediction"] == 1 else "Negative"
+            print(f"Result: {diagnosis} (Code: {result['prediction']})")
+        else:
+            print(f"Error: {result['message']}")
+
+if __name__ == "__main__":
+    run_tests()
