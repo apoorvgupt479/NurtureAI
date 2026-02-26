@@ -83,3 +83,24 @@ encoders = {
     "Gender": {"Male": 1, "Female": 0},
     "Diabetes": {"No": 0, "Yes": 1},
     "Diabetes Type": {"Unknown": 0, "Type 1": 1, "Type 2": 2},
+    "Diarrhoea": {"No": 0, "Yes": 1},
+    "Abdominal": {"No": 0, "Yes": 1},
+    "Short_Stature": {"No": 0, "Yes": 1},
+    "Sticky_Stool": {"No": 0, "Yes": 1},
+    "Weight_loss": {"No": 0, "Yes": 1}
+}
+
+# -----------------------------------
+# LOAD FUNCTION
+# -----------------------------------
+def load():
+    global model
+    try:
+        import os
+        pkl_path = os.path.join(os.path.dirname(__file__), "celiac_model.pkl")
+        with open(pkl_path, "rb") as f:
+            model = pickle.load(f)
+
+        return {
+            "status": "success",
+            "code": 200,

@@ -354,3 +354,122 @@ else:
     else:
         print("dt_report and y_pred_dt not found. Using default placeholder for Decision Tree.")
         # Use the predefined dt_report (which is default_report.copy())
+
+    # Random Forest Report
+    if 'y_pred_rf' in locals():
+        rf_report = classification_report(y_test, y_pred_rf, output_dict=True)
+    else:
+        print("rf_report and y_pred_rf not found. Using default placeholder for Random Forest.")
+        # Use the predefined rf_report (which is default_report.copy())
+
+
+# Now, comparison_data can be safely constructed as lr_report, dt_report, rf_report are always defined
+comparison_data = {
+    'Model': ['Logistic Regression', 'Decision Tree', 'Random Forest'],
+    'Accuracy': [lr_report['accuracy'], dt_report['accuracy'], rf_report['accuracy']],
+    'Precision (Class 0)': [lr_report['0']['precision'], dt_report['0']['precision'], rf_report['0']['precision']],
+    'Recall (Class 0)': [lr_report['0']['recall'], dt_report['0']['recall'], rf_report['0']['recall']],
+    'F1-Score (Class 0)': [lr_report['0']['f1-score'], dt_report['0']['f1-score'], rf_report['0']['f1-score']]
+}
+
+comparison_df = pd.DataFrame(comparison_data)
+print("\nModel Performance Comparison:")
+display(comparison_df.round(3))
+
+# --- CELL ---
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+# Ensure comparison_df is available and properly populated
+if 'comparison_df' in locals() and not comparison_df.empty:
+    metrics_to_plot = ['Accuracy', 'Precision (Class 0)', 'Recall (Class 0)', 'F1-Score (Class 0)']
+
+    # Melt the DataFrame for easier plotting with seaborn
+    df_melted = comparison_df.melt(id_vars='Model', value_vars=metrics_to_plot, var_name='Metric', value_name='Score')
+
+    plt.figure(figsize=(14, 7))
+    sns.barplot(x='Metric', y='Score', hue='Model', data=df_melted, palette='muted')
+    plt.title('Comparison of Model Performance Metrics', fontsize=16)
+    plt.ylabel('Score')
+    plt.xlabel('Metric')
+    plt.ylim(0, 1) # Metrics are typically between 0 and 1
+    plt.legend(title='Model')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.show()
+else:
+    print("Comparison DataFrame is not available or empty. Please ensure previous cells generating model reports and comparison_df are run.")
+
+# --- CELL ---
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import LogisticRegression
+import warnings
+
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
+
+# Define the parameter grid for Logistic Regression
+param_grid_lr = {
+    'C': [0.01, 0.1, 1, 10, 100],
+    'penalty': ['l1', 'l2']
+}
+
+# Initialize GridSearchCV
+grid_search_lr = GridSearchCV(
+    LogisticRegression(random_state=42, solver='liblinear', max_iter=1000, class_weight='balanced'),
+    param_grid_lr,
+    cv=5,
+    scoring='f1', # Focus on F1-score for the minority class
+    n_jobs=-1,
+    verbose=1
+)
+
+print("Starting GridSearchCV for Logistic Regression...")
+grid_search_lr.fit(X_train, y_train)
+
+print("Logistic Regression tuning complete.")
+print(f"Best parameters for Logistic Regression: {grid_search_lr.best_params_}")
+print(f"Best F1-score (minority class) for Logistic Regression: {grid_search_lr.best_score_:.4f}")
+
+best_lr_model = grid_search_lr.best_estimator_
+# Evaluate on test set
+y_pred_lr_tuned = best_lr_model.predict(X_test)
+lr_tuned_report = classification_report(y_test, y_pred_lr_tuned, output_dict=True)
+print("\nClassification Report for Tuned Logistic Regression:")
+print(classification_report(y_test, y_pred_lr_tuned))
+
+# --- CELL ---
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
+import warnings
+
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
+
+# Define the parameter grid for Decision Tree
+param_grid_dt = {
+    'max_depth': [None, 5, 10, 15],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'criterion': ['gini', 'entropy']
+}
+
+# Initialize GridSearchCV
+grid_search_dt = GridSearchCV(
+    DecisionTreeClassifier(random_state=42, class_weight='balanced'),
+    param_grid_dt,
+    cv=5,
+    scoring='f1', # Focus on F1-score for the minority class
+    n_jobs=-1,
+    verbose=1
+)
+
+print("Starting GridSearchCV for Decision Tree Classifier...")
+grid_search_dt.fit(X_train, y_train)
+
+print("Decision Tree tuning complete.")
+print(f"Best parameters for Decision Tree: {grid_search_dt.best_params_}")
+print(f"Best F1-score (minority class) for Decision Tree: {grid_search_dt.best_score_:.4f}")
