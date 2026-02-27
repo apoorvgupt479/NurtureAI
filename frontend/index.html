@@ -156,3 +156,82 @@
         <!-- Step 4: Extended Health -->
         <div class="wizard-step" id="parent-step-4">
             <div class="card">
+                <div class="card-icon">🩺</div>
+                <h2>Health Details</h2>
+                <p class="helper">These details unlock detailed risk scores and personalized recommendations.</p>
+
+                <div class="form-group">
+                    <label for="parent-phys-days">Days of poor physical health (past 30 days)</label>
+                    <p class="helper-sm">How many days did physical health problems affect daily activities?</p>
+                    <div class="stepper">
+                        <button class="stepper-btn" onclick="App.adjustStepper('parent-phys-days',-1)">−</button>
+                        <input type="number" id="parent-phys-days" value="0" min="0" max="30">
+                        <button class="stepper-btn" onclick="App.adjustStepper('parent-phys-days',1)">+</button>
+                        <span class="stepper-unit">days</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="parent-mental-days">Days of poor mental health (past 30 days)</label>
+                    <p class="helper-sm">Stress, depression, or emotional problems.</p>
+                    <div class="stepper">
+                        <button class="stepper-btn" onclick="App.adjustStepper('parent-mental-days',-1)">−</button>
+                        <input type="number" id="parent-mental-days" value="0" min="0" max="30">
+                        <button class="stepper-btn" onclick="App.adjustStepper('parent-mental-days',1)">+</button>
+                        <span class="stepper-unit">days</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Have you ever been told you have a depressive disorder?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="parent-depression" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn active" data-field="parent-depression" data-value="2" onclick="App.toggleSelect(this)">No</button>
+                    </div>
+                    <input type="hidden" id="parent-depression" value="2">
+                </div>
+
+                <div class="form-group">
+                    <label for="parent-bmi">Your BMI</label>
+                    <p class="helper-sm">Body Mass Index. Normal range: 18.5–25.</p>
+                    <input type="number" id="parent-bmi" placeholder="e.g. 24.5" step="0.1" min="15" max="60">
+                </div>
+
+                <div class="form-group">
+                    <label for="parent-alcohol">Alcohol consumption (days per month)</label>
+                    <p class="helper-sm">How many days per month do you drink alcohol?</p>
+                    <div class="stepper">
+                        <button class="stepper-btn" onclick="App.adjustStepper('parent-alcohol',-1)">−</button>
+                        <input type="number" id="parent-alcohol" value="0" min="0" max="30">
+                        <button class="stepper-btn" onclick="App.adjustStepper('parent-alcohol',1)">+</button>
+                        <span class="stepper-unit">days</span>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" onclick="App.parentStep(3)">← Back</button>
+                    <button class="btn btn-primary" onclick="App.saveParent()">Complete ✓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SCREEN: Dashboard                                             -->
+<!-- ============================================================ -->
+<section id="screen-dashboard" class="screen">
+    <div class="screen-content">
+        <div class="dashboard-header">
+            <div>
+                <h1 id="dash-greeting">Welcome! 👋</h1>
+                <p class="subtitle" id="dash-subtitle">Your family health overview</p>
+            </div>
+            <button class="btn-icon" onclick="App.resetApp()" title="Reset app">⚙️</button>
+        </div>
+
+        <!-- Parent Card -->
+        <div class="card card-parent" id="parent-card">
+            <div class="card-row">
+                <div class="card-icon-sm">🧑‍🍼</div>
+                <div>

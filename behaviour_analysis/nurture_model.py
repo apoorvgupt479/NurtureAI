@@ -70,3 +70,39 @@
 # OUTPUT FORMAT
 # ============================================================
 #
+# {
+#     "status": 200,
+#     "prediction": "Healthy Home Environment",
+#     "confidence": {
+#         "Healthy Home Environment": 0.82,
+#         "Moderate Risk Environment": 0.13,
+#         "High Risk Environment": 0.05
+#     },
+#     "risk_scores": {
+#         "Mental_Stress_Score": 0.12,
+#         "Lifestyle_Risk_Score": 0.08,
+#         "Physical_Risk_Score": 0.10,
+#         "Overall_Risk": 0.10
+#     },
+#     "recommendations": ["..."]
+# }
+#
+# ============================================================
+
+import pickle
+import pandas as pd
+
+# Global model bundle (loaded by load())
+_model_bundle = None
+
+
+def load(pkl_path="nurture_model.pkl"):
+    """
+    Load the trained NurtureAI model from a pickle file.
+
+    Parameters:
+        pkl_path (str): Path to the .pkl file. Default: 'nurture_model.pkl'
+
+    Returns:
+        dict: {"status": 200, "message": "..."} on success
+              {"status": 500, "error": "..."} on failure
