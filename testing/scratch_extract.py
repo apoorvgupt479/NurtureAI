@@ -473,3 +473,122 @@ grid_search_dt.fit(X_train, y_train)
 print("Decision Tree tuning complete.")
 print(f"Best parameters for Decision Tree: {grid_search_dt.best_params_}")
 print(f"Best F1-score (minority class) for Decision Tree: {grid_search_dt.best_score_:.4f}")
+
+best_dt_model = grid_search_dt.best_estimator_
+# Evaluate on test set
+y_pred_dt_tuned = best_dt_model.predict(X_test)
+dt_tuned_report = classification_report(y_test, y_pred_dt_tuned, output_dict=True)
+print("\nClassification Report for Tuned Decision Tree:")
+print(classification_report(y_test, y_pred_dt_tuned))
+
+# --- CELL ---
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+import warnings
+
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
+
+# Define the parameter grid for Random Forest
+param_grid_rf = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [None, 10, 20],
+    'min_samples_split': [2, 5],
+    'min_samples_leaf': [1, 2],
+    'class_weight': ['balanced', None]
+}
+
+# Initialize GridSearchCV
+grid_search_rf = GridSearchCV(
+    RandomForestClassifier(random_state=42),
+    param_grid_rf,
+    cv=3, # Using lower CV for faster computation
+    scoring='f1', # Focus on F1-score for the minority class
+    n_jobs=-1,
+    verbose=1
+)
+
+print("Starting GridSearchCV for Random Forest Classifier...")
+grid_search_rf.fit(X_train, y_train)
+
+print("Random Forest tuning complete.")
+print(f"Best parameters for Random Forest: {grid_search_rf.best_params_}")
+print(f"Best F1-score (minority class) for Random Forest: {grid_search_rf.best_score_:.4f}")
+
+best_rf_model = grid_search_rf.best_estimator_
+# Evaluate on test set
+y_pred_rf_tuned = best_rf_model.predict(X_test)
+rf_tuned_report = classification_report(y_test, y_pred_rf_tuned, output_dict=True)
+print("\nClassification Report for Tuned Random Forest:")
+print(classification_report(y_test, y_pred_rf_tuned))
+
+# --- CELL ---
+
+import pandas as pd
+
+# Ensure reports are available. If tuning wasn't run, use default placeholders.
+if 'lr_tuned_report' not in locals(): lr_tuned_report = default_report.copy()
+if 'dt_tuned_report' not in locals(): dt_tuned_report = default_report.copy()
+if 'rf_tuned_report' not in locals(): rf_tuned_report = default_report.copy()
+
+comparison_data_tuned = {
+    'Model': ['Tuned Logistic Regression', 'Tuned Decision Tree', 'Tuned Random Forest'],
+    'Accuracy': [lr_tuned_report['accuracy'], dt_tuned_report['accuracy'], rf_tuned_report['accuracy']],
+    'Precision (Class 0)': [lr_tuned_report['0']['precision'], dt_tuned_report['0']['precision'], rf_tuned_report['0']['precision']],
+    'Recall (Class 0)': [lr_tuned_report['0']['recall'], dt_tuned_report['0']['recall'], rf_tuned_report['0']['recall']],
+    'F1-Score (Class 0)': [lr_tuned_report['0']['f1-score'], dt_tuned_report['0']['f1-score'], rf_tuned_report['0']['f1-score']]
+}
+
+comparison_df_tuned = pd.DataFrame(comparison_data_tuned)
+print("\nTuned Model Performance Comparison:")
+display(comparison_df_tuned.round(3))
+
+
+# --- CELL ---
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+if 'comparison_df_tuned' in locals() and not comparison_df_tuned.empty:
+    metrics_to_plot = ['Accuracy', 'Precision (Class 0)', 'Recall (Class 0)', 'F1-Score (Class 0)']
+
+    df_melted_tuned = comparison_df_tuned.melt(id_vars='Model', value_vars=metrics_to_plot, var_name='Metric', value_name='Score')
+
+    plt.figure(figsize=(14, 7))
+    sns.barplot(x='Metric', y='Score', hue='Model', data=df_melted_tuned, palette='dark')
+    plt.title('Comparison of Tuned Model Performance Metrics', fontsize=16)
+    plt.ylabel('Score')
+    plt.xlabel('Metric')
+    plt.ylim(0, 1)
+    plt.legend(title='Model')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.show()
+else:
+    print("Tuned Comparison DataFrame is not available or empty. Please ensure previous tuning cells are run.")
+
+# --- CELL ---
+
+# --- Mapping Technical Names to Layman Labels (Expanded) ---
+# This dictionary maps technical feature names to human-friendly questions or labels for the UI.
+feature_labels = {
+    'Res_Age': "What is the mother's current age in years?",
+    'Edu_level': 'What is the highest education level completed by the mother? (0: No education, 1: Primary, 2: Secondary, 3: Higher)',
+    'Water_Source_Time': 'How many minutes does it take to fetch water? (Enter 0 if water is available on the premises)',
+    'Toilet_Facility': 'Does the household have access to a toilet facility? (1: Yes, 0: No)',
+    'House_electricity': 'Does the house have electricity? (1: Yes, 0: No)',
+    'House_radio': 'Does the household own a radio? (1: Yes, 0: No)',
+    'House_tv': 'Does the household own a television? (1: Yes, 0: No)',
+    'House_bicycle': 'Does the household own a bicycle? (1: Yes, 0: No)',
+    'House_motorcycle': 'Does the household own a motorcycle or scooter? (1: Yes, 0: No)',
+    'House_car': 'Does the household own a car/truck? (1: Yes, 0: No)',
+    'Household_members': 'What is the total number of people living in the household?',
+    'Child_under5': 'What is the number of children under age 5 currently living in the household?',
+    'House_telephone': 'Does the household have a telephone (landline or mobile)? (1: Yes, 0: No)',
+    'Wealth_Idx_Lb': 'What is the household wealth status? (A higher number indicates a wealthier household)',
+    'Tot_child_born': 'What is the total number of children the mother has given birth to?',
+    'Sons_died': 'How many sons born to the mother have passed away?',
+    'Daughters_died': 'How many daughters born to the mother have passed away?',
+    'Curr_Preg': 'Is the mother currently pregnant? (1: Yes, 0: No)',
+    'LastChild_Want': 'Was the last child born wanted at the time of conception? (1: Yes, 0: No)',
+    'Curr_BrstFeed': 'Is the child currently being breastfed? (1: Yes, 0: No)',
