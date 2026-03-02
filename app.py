@@ -47,3 +47,28 @@ MODEL_REGISTRY = {
     "child_mortality":  os.path.join(BASE_DIR, "child_mortality", "child_health_model.py"),
     "nurture":          os.path.join(BASE_DIR, "nurture_model", "nurture_model.py"),
     "celiac":           os.path.join(BASE_DIR, "celiac-disease", "celiac_model.py"),
+    "chatbot":          os.path.join(BASE_DIR, "chatbot", "chatbot_model.py"),
+}
+
+PKL_PATHS = {
+    "behaviour":       os.path.join(BASE_DIR, "behaviour_analysis", "nurture_model.pkl"),
+    "child_mortality":  os.path.join(BASE_DIR, "child_mortality", "model.pkl"),
+    "nurture":          os.path.join(BASE_DIR, "nurture_model", "nurture_model.pkl"),
+    "celiac":           os.path.join(BASE_DIR, "celiac-disease", "celiac_model.pkl"),
+    "chatbot":          os.path.join(BASE_DIR, "chatbot", "chroma_full_state.pkl"),
+}
+
+
+def _load_single_model(name):
+    """Import and load a single model. Thread-safe."""
+    try:
+        if name not in _modules:
+            _modules[name] = _import(name, MODEL_REGISTRY[name])
+
+        mod = _modules[name]
+        if name == "behaviour":
+            result = mod.load(pkl_path=PKL_PATHS[name])
+        elif name == "chatbot":
+            result = mod.load(pkl_path=PKL_PATHS[name])
+        else:
+            result = mod.load()

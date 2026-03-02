@@ -225,3 +225,49 @@ coverage_results["child_mortality"] = child_hit
 # 4. NURTURE MODEL — 4 classes: sii = 0,1,2,3
 # ===========================================================
 section("4. NURTURE MODEL — sii classes: 0=None, 1=Mild, 2=Moderate, 3=Severe")
+
+nurture = _import("nurture_child_model",
+                  os.path.join(BASE_DIR, "nurture_model", "nurture_model.py"))
+nurture.load()
+
+RISK_LABELS = {0: "None (Healthy)", 1: "Mild Risk", 2: "Moderate Risk", 3: "Severe Risk"}
+
+# Note: The Nurture model uses a Random Forest with close class probabilities
+# (often ~0.25-0.35 per class). We use the highest-probability class.
+# We run multiple candidates per target class and accept the first that matches.
+NURTURE_CASES = [
+    {
+        "label": "Healthy child -> expect sii=0 (None/Healthy)",
+        "expect_sii": 0,
+        "candidates": [
+            {   # Very healthy: low SDS, high PAQ, great fitness, normal BMI
+                "Basic_Demos-Age": 10, "Basic_Demos-Sex": 0,
+                "Physical-BMI": 18.5,  "Physical-Height": 140, "Physical-Weight": 36,
+                "Physical-Waist_Circumference": 60,
+                "Physical-Diastolic_BP": 65,  "Physical-Systolic_BP": 105,
+                "Physical-HeartRate": 68,
+                "SDS-SDS_Total_T": 28, "PAQ_A-PAQ_A_Total": 3.9,
+                "PAQ_C-PAQ_C_Total": 3.9,
+                "Fitness_Endurance-Max_Stage": 13, "Fitness_Endurance-Time_Mins": 50,
+                "BIA-BIA_Fat": 11, "BIA-BIA_FFM": 32, "BIA-BIA_SMM": 24,
+            },
+        ]
+    },
+    {
+        "label": "Mildly at-risk -> expect sii=1 (Mild)",
+        "expect_sii": 1,
+        "candidates": [
+            {   # Discovered via brute sweep: young child, low SDS but low PAQ+BMI
+                "Basic_Demos-Age": 10, "Basic_Demos-Sex": 0,
+                "Physical-BMI": 17.0, "Physical-Height": 140, "Physical-Weight": 33,
+                "Physical-Waist_Circumference": 58,
+                "Physical-Diastolic_BP": 65, "Physical-Systolic_BP": 102,
+                "Physical-HeartRate": 70,
+                "SDS-SDS_Total_T": 38.0, "PAQ_A-PAQ_A_Total": 1.5,
+                "PAQ_C-PAQ_C_Total": 1.5,
+                "Fitness_Endurance-Max_Stage": 8.0, "Fitness_Endurance-Time_Mins": 28.0,
+                "BIA-BIA_Fat": 17.0, "BIA-BIA_FFM": 36.0, "BIA-BIA_SMM": 26.0,
+            },
+        ]
+    },
+    {
