@@ -48,3 +48,29 @@ found1 = None; found2 = None
 SDS_VALS  = [38, 42, 45, 48, 50, 52, 55, 58, 60, 62, 65]
 PAQ_VALS  = [1.5, 1.8, 2.0, 2.3, 2.5, 2.8, 3.0, 3.2, 3.5]
 BMI_VALS  = [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+STG_VALS  = [3, 4, 5, 6, 7, 8, 9, 10, 11]
+AGE_VALS  = [10, 12, 13, 14, 15, 16, 17]
+
+for age in AGE_VALS:
+    for sds in SDS_VALS:
+        for paq in PAQ_VALS:
+            for bmi in BMI_VALS:
+                for stage in STG_VALS:
+                    pred, proba, bscore = make_pred(sds, paq, bmi, stage, age=age)
+                    if pred == 1 and found1 is None:
+                        found1 = (age, sds, paq, bmi, stage, bscore, proba)
+                        print(f"sii=1 FOUND: age={age} SDS={sds} PAQ={paq} BMI={bmi} stage={stage} bscore={bscore}")
+                        print(f"  proba={[round(p,3) for p in proba]}")
+                    if pred == 2 and found2 is None:
+                        found2 = (age, sds, paq, bmi, stage, bscore, proba)
+                        print(f"sii=2 FOUND: age={age} SDS={sds} PAQ={paq} BMI={bmi} stage={stage} bscore={bscore}")
+                        print(f"  proba={[round(p,3) for p in proba]}")
+                    if found1 and found2:
+                        break
+                if found1 and found2: break
+            if found1 and found2: break
+        if found1 and found2: break
+    if found1 and found2: break
+
+if not found1: print("sii=1 NOT found in sweep")
+if not found2: print("sii=2 NOT found in sweep")
