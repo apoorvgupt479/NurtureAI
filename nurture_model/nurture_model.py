@@ -118,3 +118,43 @@ def _compute_behavior_score(data: dict) -> float:
     Higher score = healthier lifestyle.
     """
     # ── Sleep component (35 points) ────────────────────────────────────────
+    # SDS score: low means GOOD sleep. So we INVERT it (80 - sds) to make
+    # high value = good sleep = more points.
+    sds = data.get("SDS-SDS_Total_T", 50)           # default 50 if not provided
+    sleep_score = max(0, (80 - sds) / 80) * 35      # ranges from 0 to 35
+
+    # ── Physical activity component (35 points) ────────────────────────────
+    # PAQ score: 1 = very inactive, 4 = very active. Scale to 0–35 range.
+    paq = data.get("PAQ_A-PAQ_A_Total", data.get("PAQ_C-PAQ_C_Total", 2.5))
+    activity_score = max(0, (paq - 1) / 3) * 35     # ranges from 0 to 35
+
+    # ── Fitness endurance component (20 points) ────────────────────────────
+    # Max stage reached: higher is better. We cap it at 15 stages max.
+    fit = data.get("Fitness_Endurance-Max_Stage", 7)
+    fitness_score = min(fit / 15, 1.0) * 20         # ranges from 0 to 20
+
+    # ── BMI component (10 points) ──────────────────────────────────────────
+    # Ideal BMI is around 21.5. The further away from 21.5, the fewer points.
+    bmi = data.get("Physical-BMI", 22)
+    bmi_deviation = abs(bmi - 21.5)                 # 0 = perfect, higher = worse
+    bmi_score = max(0, (15 - bmi_deviation) / 15) * 10  # ranges from 0 to 10
+
+    # ── Total score ────────────────────────────────────────────────────────
+    total = sleep_score + activity_score + fitness_score + bmi_score
+    return round(min(total, 100.0), 1)   # Cap at 100 just in case
+
+
+# =============================================================================
+#  FUNCTION 2: predict(input_data)
+#  Purpose : Take a dictionary of child health features, run the ML model,
+#            and return the predicted risk level + behavior score.
+#  Input   : dict with feature names and values (see top of file for full list)
+#  Returns : {"status": "ok", "code": 200, "prediction": {...}}  if successful
+#            {"status": "error", "message": "...", "code": ...}   if something fails
+# =============================================================================
+def predict(input_data: dict) -> dict:
+    """
+    Makes a prediction for a child based on their health data.
+
+    Parameters
+    ----------
