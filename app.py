@@ -72,3 +72,28 @@ def _load_single_model(name):
             result = mod.load(pkl_path=PKL_PATHS[name])
         else:
             result = mod.load()
+
+        status_code = result.get("code", result.get("status", 500))
+        if status_code in (200, "success", "ok"):
+            _model_status[name] = {"loaded": True, "message": "OK"}
+        else:
+            _model_status[name] = {"loaded": False, "message": str(result)}
+    except Exception as e:
+        _model_status[name] = {"loaded": False, "message": str(e)}
+
+
+def _load_all_models_background():
+    """Load all models in background threads."""
+    for name in MODEL_REGISTRY:
+        t = threading.Thread(target=_load_single_model, args=(name,), daemon=True)
+        t.start()
+
+
+# ---------------------------------------------------------------------------
+# Static File Serving
+# ---------------------------------------------------------------------------
+@app.route("/")
+def index():
+    return send_from_directory(FRONTEND_DIR, "index.html")
+
+@app.route("/<path:path>")

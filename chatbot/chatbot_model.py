@@ -169,3 +169,46 @@ def load(pkl_path: str = None) -> dict:
 
         _chroma_collection = _chroma_client.create_collection(name=col_name)
 
+        # Insert in batches to avoid memory/API limits
+        total = len(archive["ids"])
+        batch_size = 5000
+        for i in range(0, total, batch_size):
+            end = min(i + batch_size, total)
+            _chroma_collection.upsert(
+                ids=archive["ids"][i:end],
+                embeddings=archive["embeddings"][i:end],
+                documents=archive["documents"][i:end],
+                metadatas=archive["metadatas"][i:end]
+            )
+
+        loaded_count = _chroma_collection.count()
+        return {
+            "status": "success",
+            "code": 200,
+            "message": f"Model loaded successfully. ChromaDB collection ready with {loaded_count} items."
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "code": 500,
+            "message": str(e)
+        }
+
+
+# ---------------------------------------------------------------------------
+# PREDICT FUNCTION
+# ---------------------------------------------------------------------------
+def predict(input_data: dict) -> dict:
+    """
+    Takes user input, retrieves relevant medical documents via ChromaDB RAG,
+    and generates a structured medical response using Google Gemini.
+
+    Args:
+        input_data (dict): Must contain at minimum:
+            - "query"          (str)  : The medical question.
+            - "google_api_key" (str)  : Gemini API key (or set GOOGLE_API_KEY env var).
+          Optionally:
+            - "child_info"     (dict) : Child age and symptoms.
+            - "parent_info"    (dict) : Parent observations.
+            - "chat_history"   (list) : Previous conversation turns.
