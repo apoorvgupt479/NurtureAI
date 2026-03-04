@@ -278,3 +278,97 @@ const App = {
 
     // ================================================================
     // Add Child
+    // ================================================================
+    addChild() {
+        const name = document.getElementById("child-name").value.trim();
+        if (!name) { this.toast("Please enter child's name"); return; }
+
+        const ageGroup = document.getElementById("child-age-group").value;
+        const age = ageGroup === "older" ? parseInt(document.getElementById("child-age").value) || 5 : 0;
+        const sex = parseInt(document.getElementById("child-sex").value) || 0;
+
+        const child = {
+            id: Date.now().toString(),
+            name, ageGroup, age, sex,
+            lastResult: null
+        };
+
+        this.state.children.push(child);
+        this.save();
+
+        // Start assessment for this child
+        this.startChildAssessment(child.id);
+    },
+
+    startChildAssessment(childId) {
+        this.state.selectedChild = childId;
+        const child = this.state.children.find(c => c.id === childId);
+        if (!child) return;
+
+        if (child.ageGroup === "infant") {
+            this.showScreen("screen-infant-form");
+            const title = document.getElementById("infant-title-1");
+            if (title) title.textContent = `${child.name} — Birth & Family`;
+            this.infantStep(1);
+        } else {
+            this.showScreen("screen-child-form");
+            const title = document.getElementById("child-title-1");
+            if (title) title.textContent = `${child.name} — Physical Measurements`;
+            this.childStep(1);
+        }
+    },
+
+    // ================================================================
+    // Infant Assessment Form (< 1 year)
+    // ================================================================
+    infantStep(step) {
+        document.querySelectorAll("#screen-infant-form .wizard-step").forEach(s => s.classList.remove("active"));
+        const target = document.getElementById("infant-step-" + step);
+        if (target) target.classList.add("active");
+
+        document.querySelectorAll("#infant-steps .step").forEach(s => {
+            const n = parseInt(s.dataset.step);
+            s.classList.toggle("active", n === step);
+            s.classList.toggle("done", n < step);
+        });
+    },
+
+    async submitInfant() {
+        this.showLoading("Analyzing infant health data...");
+
+        const data = {
+            Toilet_Facility:       parseInt(document.getElementById("inf-toilet").value),
+            Child_under5:          parseInt(document.getElementById("inf-under5").value) || 0,
+            Tot_child_born:        parseInt(document.getElementById("inf-children").value) || 1,
+            Sons_died:             parseInt(document.getElementById("inf-sons-died").value) || 0,
+            Daughters_died:        parseInt(document.getElementById("inf-daughters-died").value) || 0,
+            Curr_Preg:             parseInt(document.getElementById("inf-pregnant").value) || 0,
+            Curr_BrstFeed:         parseInt(document.getElementById("inf-breastfeed").value),
+            ChildFood_bottle:      parseInt(document.getElementById("inf-bottle").value),
+            Resp_height:           parseFloat(document.getElementById("inf-height").value) || 155,
+            HealthInsurance:       parseInt(document.getElementById("inf-insurance").value),
+            B_ChildTwin:           parseInt(document.getElementById("inf-twin").value),
+            First3Day_fruitJuice:  document.getElementById("inf-fruitjuice").checked ? 1 : 0,
+            HepatitisB_atBirth:    document.getElementById("inf-hepb").checked ? 1 : 0,
+            ShortBreaths:          parseInt(document.getElementById("inf-breath").value),
+            VitaminA:              document.getElementById("inf-vita").checked ? 1 : 0,
+            IronPill:              document.getElementById("inf-iron").checked ? 1 : 0,
+            IntestinalDrug:        document.getElementById("inf-deworm").checked ? 1 : 0,
+            ultrasound:            parseInt(document.getElementById("inf-ultrasound").value),
+            MMR:                   document.getElementById("inf-mmr").checked ? 1 : 0,
+            delivery_place:        parseInt(document.getElementById("inf-private").value) ? "private" : "government",
+            Water_Source_Other:    parseInt(document.getElementById("inf-water").value) || 0,
+            DPT_full:              document.getElementById("inf-dpt").checked ? 1 : 0,
+            MEASLES_full:          document.getElementById("inf-measles").checked ? 1 : 0,
+        };
+
+        // State
+        const stateVal = document.getElementById("inf-state").value;
+        if (stateVal) data.state = stateVal;
+
+        try {
+            const res = await fetch(API + "/api/child-infant", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
