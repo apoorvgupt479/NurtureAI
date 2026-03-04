@@ -64,3 +64,36 @@ try:
         check("predict() missing fields -> code 400", r2.get("code") == 400, str(r2))
 
         # Invalid encoder value
+        r3 = celiac.predict({
+            "Age": 25, "Gender": "Unknown", "Diabetes": "Yes",
+            "Diabetes Type": "Type 1", "Diarrhoea": "Yes", "Abdominal": "Yes",
+            "Short_Stature": "No", "Sticky_Stool": "Yes", "Weight_loss": "Yes",
+            "IgA": 5.2, "IgG": 15.1, "IgM": 1.8
+        })
+        check("predict() invalid enum -> graceful error (code 400/500)", r3.get("code") in (400, 500), str(r3))
+except Exception as e:
+    print(f"  {FAIL} Module import/load crashed: {e}")
+    traceback.print_exc()
+    results["celiac_load"] = False
+    results["celiac_predict"] = False
+
+
+# ─────────────────────────────────────────────────────────────
+# 2. BEHAVIOUR ANALYSIS MODEL
+# ─────────────────────────────────────────────────────────────
+section("2. BEHAVIOUR ANALYSIS MODEL (behaviour_analysis/nurture_model.py)")
+try:
+    beh_pkl = os.path.join(BASE_DIR, "behaviour_analysis", "nurture_model.pkl")
+    behaviour = _import("behaviour_model", os.path.join(BASE_DIR, "behaviour_analysis", "nurture_model.py"))
+
+    load_res = behaviour.load(pkl_path=beh_pkl)
+    loaded = check("load() returns status 200", load_res.get("status") == 200, str(load_res))
+    results["behaviour_load"] = loaded
+
+    if loaded:
+        valid_input = {
+            "General_Health": 3, "Sleep_Hours": 7, "Exercise_Any": 1,
+            "Smoked_100_Cigs": 2, "Income_Level": 6, "Marital_Status": 1,
+        }
+        r1 = behaviour.predict(valid_input)
+        results["behaviour_predict"] = check("predict() valid 6-feat input -> status 200", r1.get("status") == 200, str(r1))

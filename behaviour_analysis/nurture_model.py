@@ -106,3 +106,39 @@ def load(pkl_path="nurture_model.pkl"):
     Returns:
         dict: {"status": 200, "message": "..."} on success
               {"status": 500, "error": "..."} on failure
+    """
+    global _model_bundle
+    try:
+        with open(pkl_path, "rb") as f:
+            _model_bundle = pickle.load(f)
+
+        # Validate the bundle has all required keys
+        required_keys = ["model", "clf_features", "class_labels", "cluster_profiles"]
+        for key in required_keys:
+            if key not in _model_bundle:
+                return {"status": 500, "error": f"Corrupt pickle: missing key '{key}'"}
+
+        return {
+            "status": 200,
+            "message": f"Model loaded successfully from '{pkl_path}'",
+            "features_required": _model_bundle["clf_features"],
+            "classes": _model_bundle["class_labels"],
+        }
+
+    except FileNotFoundError:
+        return {"status": 404, "error": f"Model file '{pkl_path}' not found"}
+    except Exception as e:
+        return {"status": 500, "error": f"Failed to load model: {str(e)}"}
+
+
+def predict(input_data):
+    """
+    Predict the caregiving environment risk label for the given input.
+
+    Parameters:
+        input_data (dict): Dictionary with feature values.
+            Required keys: General_Health, Sleep_Hours, Exercise_Any,
+                           Smoked_100_Cigs, Income_Level, Marital_Status
+            Optional keys: Physical_Health_Days, Mental_Health_Days,
+                           Depression_Diagnosis, BMI_Indicator,
+                           Alcohol_Days_Monthly
