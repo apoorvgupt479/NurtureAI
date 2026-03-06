@@ -97,3 +97,28 @@ def index():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
 @app.route("/<path:path>")
+def static_files(path):
+    return send_from_directory(FRONTEND_DIR, path)
+
+
+# ---------------------------------------------------------------------------
+# API: Model Management
+# ---------------------------------------------------------------------------
+@app.route("/api/load-models", methods=["POST"])
+def api_load_models():
+    _load_all_models_background()
+    return jsonify({"status": "loading", "message": "Models are loading in background"})
+
+@app.route("/api/model-status", methods=["GET"])
+def api_model_status():
+    return jsonify(_model_status)
+
+
+# ---------------------------------------------------------------------------
+# API: Settings (Gemini API Key)
+# ---------------------------------------------------------------------------
+@app.route("/api/save-api-key", methods=["POST"])
+def api_save_api_key():
+    data = request.get_json()
+    if not data or "api_key" not in data:
+        return jsonify({"status": "error", "message": "No api_key provided"}), 400
