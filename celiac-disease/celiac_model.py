@@ -125,3 +125,24 @@ def predict(input_data):
         if model is None:
             return {
                 "status": "error",
+                "code": 500,
+                "message": "Model not loaded. Call load() first."
+            }
+
+        # Convert input dict → feature list (ORDER MATTERS)
+        features = [
+            input_data["Age"],
+            encoders["Gender"][input_data["Gender"]],
+            encoders["Diabetes"][input_data["Diabetes"]],
+            encoders["Diabetes Type"][input_data["Diabetes Type"]],
+            encoders["Diarrhoea"][input_data["Diarrhoea"]],
+            encoders["Abdominal"][input_data["Abdominal"]],
+            encoders["Short_Stature"][input_data["Short_Stature"]],
+            encoders["Sticky_Stool"][input_data["Sticky_Stool"]],
+            encoders["Weight_loss"][input_data["Weight_loss"]],
+            input_data["IgA"],
+            input_data["IgG"],
+            input_data["IgM"]
+        ]
+
+        features = np.array(features).reshape(1, -1)
