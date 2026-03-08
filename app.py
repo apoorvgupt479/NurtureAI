@@ -122,3 +122,27 @@ def api_save_api_key():
     data = request.get_json()
     if not data or "api_key" not in data:
         return jsonify({"status": "error", "message": "No api_key provided"}), 400
+    _settings["gemini_api_key"] = data["api_key"]
+    return jsonify({"status": "ok", "message": "API key saved"})
+
+@app.route("/api/get-api-key", methods=["GET"])
+def api_get_api_key():
+    key = _settings.get("gemini_api_key", "")
+    # Mask the key for security — only show last 4 chars
+    masked = ("•" * max(0, len(key) - 4)) + key[-4:] if len(key) > 4 else key
+    return jsonify({"has_key": bool(key), "masked_key": masked})
+
+
+# ---------------------------------------------------------------------------
+# API: Parent Assessment (behaviour_analysis model)
+# ---------------------------------------------------------------------------
+@app.route("/api/parent-assessment", methods=["POST"])
+def api_parent_assessment():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": 400, "error": "No data provided"}), 400
+
+    if "behaviour" not in _modules or not _model_status.get("behaviour", {}).get("loaded"):
+        _load_single_model("behaviour")
+        if not _model_status.get("behaviour", {}).get("loaded"):
+            return jsonify({"status": 503, "error": "Behaviour model not available"}), 503
