@@ -372,3 +372,96 @@ const App = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
+            const result = await res.json();
+
+            // Save result to child
+            const child = this.state.children.find(c => c.id === this.state.selectedChild);
+            if (child) { child.lastResult = result; this.save(); }
+
+            this.hideLoading();
+            this.renderInfantResults(result, child);
+        } catch (e) {
+            this.hideLoading();
+            this.toast("Error: " + e.message);
+        }
+    },
+
+    // ================================================================
+    // Child Assessment Form (>= 1 year)
+    // ================================================================
+    childStep(step) {
+        document.querySelectorAll("#screen-child-form .wizard-step").forEach(s => s.classList.remove("active"));
+        const target = document.getElementById("child-step-" + step);
+        if (target) target.classList.add("active");
+
+        document.querySelectorAll("#child-steps .step").forEach(s => {
+            const n = parseInt(s.dataset.step);
+            s.classList.toggle("active", n === step);
+            s.classList.toggle("done", n < step);
+        });
+    },
+
+    autoBMI() {
+        const h = parseFloat(document.getElementById("ch-height").value);
+        const w = parseFloat(document.getElementById("ch-weight").value);
+        if (h && w && h > 0) {
+            const bmi = (w / ((h / 100) ** 2)).toFixed(1);
+            document.getElementById("ch-bmi").value = bmi;
+        }
+    },
+
+    async submitChild() {
+        this.showLoading("Running health assessment...");
+
+        const child = this.state.children.find(c => c.id === this.state.selectedChild);
+        if (!child) { this.hideLoading(); return; }
+
+        const data = {
+            "Basic_Demos-Age": child.age,
+            "Basic_Demos-Sex": child.sex,
+        };
+
+        // Physical (optional — model fills medians for missing)
+        const addIfPresent = (elId, key) => {
+            const v = parseFloat(document.getElementById(elId).value);
+            if (!isNaN(v) && v > 0) data[key] = v;
+        };
+
+        addIfPresent("ch-height", "Physical-Height");
+        addIfPresent("ch-weight", "Physical-Weight");
+        addIfPresent("ch-bmi", "Physical-BMI");
+        addIfPresent("ch-waist", "Physical-Waist_Circumference");
+        addIfPresent("ch-hr", "Physical-HeartRate");
+        addIfPresent("ch-sbp", "Physical-Systolic_BP");
+        addIfPresent("ch-dbp", "Physical-Diastolic_BP");
+        addIfPresent("ch-sds", "SDS-SDS_Total_T");
+        addIfPresent("ch-fit-stage", "Fitness_Endurance-Max_Stage");
+        addIfPresent("ch-fit-time", "Fitness_Endurance-Time_Mins");
+        addIfPresent("ch-fat", "BIA-BIA_Fat");
+        addIfPresent("ch-ffm", "BIA-BIA_FFM");
+        addIfPresent("ch-smm", "BIA-BIA_SMM");
+
+        // PAQ: use PAQ_C for children <=12, PAQ_A for teens
+        const paq = parseFloat(document.getElementById("ch-paq").value);
+        if (!isNaN(paq) && paq > 0) {
+            if (child.age <= 12) data["PAQ_C-PAQ_C_Total"] = paq;
+            else data["PAQ_A-PAQ_A_Total"] = paq;
+        }
+
+        try {
+            const res = await fetch(API + "/api/child-health", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+
+            if (child) { child.lastResult = result; this.save(); }
+            this.hideLoading();
+            this.renderChildResults(result, child);
+        } catch (e) {
+            this.hideLoading();
+            this.toast("Error: " + e.message);
+        }
+    },
+
