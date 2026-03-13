@@ -178,3 +178,39 @@ def predict(input_data):
         if not isinstance(val, (int, float)):
             return {"status": 400, "error": f"'{feat}' must be numeric, got {type(val).__name__}"}
         if val < lo or val > hi:
+            return {"status": 400, "error": f"'{feat}' must be between {lo} and {hi}, got {val}"}
+
+    try:
+        # --- Random Forest Prediction ---
+        rf_input = pd.DataFrame([{k: input_data[k] for k in clf_features}])
+        predicted_label = rf.predict(rf_input)[0]
+        predicted_proba = rf.predict_proba(rf_input)[0]
+        class_labels = rf.classes_
+
+        confidence = {lbl: round(float(prob), 4) for lbl, prob in zip(class_labels, predicted_proba)}
+
+        # --- Compute Risk Scores (if extended features provided) ---
+        risk_scores = None
+        recommendations = []
+
+        extended_keys = ["Physical_Health_Days", "Mental_Health_Days",
+                         "Depression_Diagnosis", "BMI_Indicator", "Alcohol_Days_Monthly"]
+        has_extended = all(k in input_data for k in extended_keys)
+
+        if has_extended:
+            inp = input_data
+
+            # Mental Stress Score
+            depression_flag = 1 if inp["Depression_Diagnosis"] == 1 else 0
+            sleep_deviation = abs(inp["Sleep_Hours"] - 7.5)
+            mental_days_norm = min(inp["Mental_Health_Days"] / 30.0, 1.0)
+            sleep_dev_norm = min(sleep_deviation / 10.0, 1.0)
+            gen_health_norm = (inp["General_Health"] - 1) / 4.0
+
+            mental_stress = (
+                mental_days_norm * 0.40 +
+                depression_flag  * 0.25 +
+                gen_health_norm  * 0.20 +
+                sleep_dev_norm   * 0.15
+            )
+
