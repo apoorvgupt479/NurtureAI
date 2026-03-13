@@ -142,3 +142,39 @@ def predict(input_data):
             Optional keys: Physical_Health_Days, Mental_Health_Days,
                            Depression_Diagnosis, BMI_Indicator,
                            Alcohol_Days_Monthly
+
+    Returns:
+        dict: Prediction result with status code, label, confidence,
+              risk scores, cluster comparison, and recommendations.
+    """
+    global _model_bundle
+
+    # --- Check model is loaded ---
+    if _model_bundle is None:
+        return {"status": 503, "error": "Model not loaded. Call load() first."}
+
+    rf = _model_bundle["model"]
+    clf_features = _model_bundle["clf_features"]
+    cluster_profiles = _model_bundle["cluster_profiles"]
+
+    # --- Validate required features ---
+    required = ["General_Health", "Sleep_Hours", "Exercise_Any",
+                "Smoked_100_Cigs", "Income_Level", "Marital_Status"]
+    missing = [f for f in required if f not in input_data]
+    if missing:
+        return {"status": 400, "error": f"Missing required features: {missing}"}
+
+    # --- Validate value ranges ---
+    validations = {
+        "General_Health":    (1, 5, int),
+        "Sleep_Hours":       (1, 18, int),
+        "Exercise_Any":      (1, 2, int),
+        "Smoked_100_Cigs":   (1, 2, int),
+        "Income_Level":      (1, 8, int),
+        "Marital_Status":    (1, 6, int),
+    }
+    for feat, (lo, hi, dtype) in validations.items():
+        val = input_data[feat]
+        if not isinstance(val, (int, float)):
+            return {"status": 400, "error": f"'{feat}' must be numeric, got {type(val).__name__}"}
+        if val < lo or val > hi:
