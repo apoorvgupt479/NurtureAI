@@ -592,3 +592,121 @@ feature_labels = {
     'Curr_Preg': 'Is the mother currently pregnant? (1: Yes, 0: No)',
     'LastChild_Want': 'Was the last child born wanted at the time of conception? (1: Yes, 0: No)',
     'Curr_BrstFeed': 'Is the child currently being breastfed? (1: Yes, 0: No)',
+    'ChildFood_bottle': 'Was the child fed using a bottle with a nipple? (1: Yes, 0: No)',
+    'Child_putToBrst': 'Was the child put to the breast immediately after birth (within one hour)? (1: Yes, 0: No)',
+    'Resp_weight': "What is the mother's weight in kilograms (kg)?",
+    'Resp_height': "What is the mother's height in meters (m)?",
+    'Hg_levelAdjusted': "What is the mother's hemoglobin level (adjusted for altitude, in g/dl)?",
+    'Anemia_level': 'What is the severity of anemia? (0: No anemia, 1: Mild, 2: Moderate, 3: Severe)',
+    'HealthInsurance': 'Is the family covered by any health insurance scheme? (1: Yes, 0: No)',
+    'B_ChildTwin': 'Was the child part of a multiple birth (e.g., twins, triplets)? (1: Yes, 0: No)',
+    'Birth_Order': 'What is the birth order of the child (e.g., 1st, 2nd, etc.)?',
+    'Birth_Size': 'What was the perceived size of the child at birth? (A higher number indicates a larger or healthier size)',
+    'Birth_Weight': 'What was the weight of the child at birth in grams (g)?',
+    'Delivery_CSection': 'Was the child delivered via C-section (Cesarean section)? (1: Yes, 0: No)',
+    'Preg_iron': 'Did the mother take iron tablets or syrup during pregnancy? (1: Yes, 0: No)',
+    'Preg_intParaDrug': 'Did the mother take intestinal parasite drugs during pregnancy? (1: Yes, 0: No)',
+    'Preg_Complication': 'Did the mother experience any complications during pregnancy? (1: Yes, 0: No)',
+    'Antenatal_visit': 'What is the total number of antenatal care (ANC) visits during pregnancy?',
+    'HepatitisB_atBirth': 'Did the child receive the Hepatitis B vaccine at birth? (1: Yes, 0: No) - Crucial for protecting against liver disease.',
+    'VitaminA': 'Did the child receive a Vitamin A dose in the last 6 months? (1: Yes, 0: No) - Important for immunity and vision.',
+    'IronPill': 'Did the child receive iron pills or syrup? (1: Yes, 0: No) - Helps prevent anemia.',
+    'IntestinalDrug': 'Did the child receive drugs for intestinal worms? (1: Yes, 0: No) - Important for nutrient absorption and growth.',
+    'Diarrhea': 'Has the child had diarrhea recently (in the last 2 weeks)? (1: Yes, 0: No)',
+    'Fever': 'Has the child had a fever recently (in the last 2 weeks)? (1: Yes, 0: No)',
+    'ShortBreaths': 'Has the child experienced rapid or short breaths (possible symptom of pneumonia) recently? (1: Yes, 0: No)',
+    'Birth_Month': "What is the child's month of birth?",
+    'Birth_Year': "What is the child's year of birth?",
+    'ChildAge_mnths': "What is the child's age in months?",
+    'Married_age': "What was the mother's age at her first marriage?",
+    'Alcohol': 'Does the mother consume alcohol? (1: Yes, 0: No)',
+    'Smoke_atHome': 'Does anyone smoke inside the house? (1: Yes, 0: No)',
+    'Preg_months': 'What was the duration of the pregnancy in completed months?',
+    'First3Day_other': 'Was the child given any other liquids in the first 3 days after birth, besides breast milk or water? (1: Yes, 0: No)',
+    'First3Day_janamGhutti': 'Was the child given Janam Ghutti (traditional herbal preparation) in the first 3 days after birth? (1: Yes, 0: No)',
+    'First3Day_honey': 'Was the child given honey in the first 3 days after birth? (1: Yes, 0: No)',
+    'First3Day_gripeWater': 'Was the child given gripe water in the first 3 days after birth? (1: Yes, 0: No)',
+    'First3Day_fruitJuice': 'Was the child given fruit juice in the first 3 days after birth? (1: Yes, 0: No)',
+    'First3Day_infFormu': 'Was the child given infant formula in the first 3 days after birth? (1: Yes, 0: No)',
+    'First3Day_animalMilk': 'Was the child given animal milk (cow, buffalo, etc.) in the first 3 days after birth? (1: Yes, 0: No)',
+    'First3Day_sugarWater': 'Was the child given sugar or glucose water in the first 3 days after birth? (1: Yes, 0: No)',
+    'First3Day_plainWater': 'Was the child given plain water in the first 3 days after birth? (1: Yes, 0: No)',
+    'First3Day_saltSol': 'Was the child given salt solution in the first 3 days after birth? (1: Yes, 0: No)',
+    'Hypertension': 'Does the mother have high blood pressure (hypertension)? (1: Yes, 0: No)',
+    'Diabetes': 'Does the mother have diabetes? (1: Yes, 0: No)',
+    'Thyroid': 'Does the mother have thyroid problems? (1: Yes, 0: No)',
+    'RespDisease': 'Does the mother have respiratory diseases (e.g., Asthma)? (1: Yes, 0: No)',
+    'HeartDisease': 'Does the mother have heart disease? (1: Yes, 0: No)',
+    'Cancer': 'Has the mother been diagnosed with cancer? (1: Yes, 0: No)',
+    'Kidney': 'Does the mother have kidney disease? (1: Yes, 0: No)',
+    'ultrasound': 'Was an ultrasound performed during pregnancy? (1: Yes, 0: No)',
+    'PostnatalChk': 'Did the mother receive a postnatal health check (after delivery)? (1: Yes, 0: No)',
+    'Resp_healthChk': 'Did the mother receive a general health check-up in the last year? (1: Yes, 0: No)',
+    'DPTB': 'Did the child receive the DPT booster shot? (1: Yes, 0: No) - Boosts protection against Diphtheria, Pertussis, and Tetanus.',
+    'MMR': 'Did the child receive the MMR (Measles, Mumps, Rubella) vaccine? (1: Yes, 0: No) - Protects against these common childhood diseases.',
+    'Benefit_HCare': 'Has the family benefited from any government health schemes? (1: Yes, 0: No)',
+    'Smoke': 'Does the mother smoke? (1: Yes, 0: No)',
+    'Betel_Leaf': 'Does the mother chew betel leaf or tobacco? (1: Yes, 0: No)',
+    'Tobacco': 'Does the mother use any form of tobacco? (1: Yes, 0: No)',
+    'Prenatal_care': 'Did the mother receive any prenatal care (before birth)? (1: Yes, 0: No)',
+    'Breastfeed_duration': 'What is the duration of breastfeeding in months?',
+    'B_ChildSex_Male': 'Is the child male? (1: Yes, 0: No)',
+    'Curr_MaritalStatus_Single Parent': 'Is the mother a single parent? (1: Yes, 0: No)',
+    'DPT_full': 'Did the child receive the full course of DPT vaccines? (1: Yes, 0: No) - Essential for full protection against Diphtheria, Pertussis, and Tetanus.',
+    'MEASLES_full': 'Did the child receive the full course of Measles vaccines? (1: Yes, 0: No) - Crucial for preventing Measles, a serious childhood illness.',
+    'JE_full': 'Did the child receive the full course of Japanese Encephalitis vaccines? (1: Yes, 0: No) - Protects against a dangerous brain infection.',
+    'Religion': "What is the mother's religion?",
+    'Ethnicity': "What is the mother's ethnicity?",
+    'Water_Source': 'What is the primary source of drinking water for the household?',
+    'DeliveryPlace': 'Where was the delivery performed?'
+}
+
+def get_label(col):
+    """Retrieves the human-friendly label for a given feature column."""
+    return feature_labels.get(col, col.replace('_', ' '))
+
+# --- CELL ---
+
+def create_input_for_prediction(user_data, original_feature_columns, model_expected_columns):
+    """Prepares user input for prediction, handling one-hot encoding for 'State' and other grouped categories."""
+    # 1. Create a template DataFrame with all model_expected_columns, initialized to 0
+    input_df_template = pd.DataFrame(0, index=[0], columns=model_expected_columns)
+
+    # Define wealth mapping here as it's specific to input processing
+    wealth_mapping = {
+        'Poor': 0,
+        'Middle Class': 2,
+        'Rich': 4
+    }
+
+    # 2. Iterate through user_data and populate the template
+    for key, value in user_data.items():
+        if key == 'Religion':
+            # Handle one-hot encoding for Religion
+            # If 'Hindu' is selected, no 'Religion_X' column needs to be 1 (they all stay 0 by default)
+            if value != 'Hindu':
+                col_name = f'Religion_{value}'
+                if col_name in model_expected_columns:
+                    input_df_template.loc[0, col_name] = 1
+        elif key == 'Ethnicity':
+            # Handle one-hot encoding for Ethnicity
+            col_name = f'Ethnicity_{value}'
+            if col_name in model_expected_columns:
+                input_df_template.loc[0, col_name] = 1
+        elif key == 'Water_Source':
+            # Handle one-hot encoding for Water_Source
+            # Note: the .replace(' ', '') was in original code, maintaining that for consistency
+            col_name = f'Water_Source_{value.replace(' ', '')}'
+            if col_name in model_expected_columns:
+                input_df_template.loc[0, col_name] = 1
+        elif key == 'DeliveryPlace':
+            # Handle one-hot encoding for DeliveryPlace
+            col_name = f'DeliveryPlace_{value}'
+            if col_name in model_expected_columns:
+                input_df_template.loc[0, col_name] = 1
+        elif key == 'State':
+            # Handle one-hot encoding for State
+            col_name = f'State_{value}'
+            if col_name in model_expected_columns:
+                input_df_template.loc[0, col_name] = 1
+        elif key == 'Wealth_Idx_Lb':
