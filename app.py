@@ -146,3 +146,28 @@ def api_parent_assessment():
         _load_single_model("behaviour")
         if not _model_status.get("behaviour", {}).get("loaded"):
             return jsonify({"status": 503, "error": "Behaviour model not available"}), 503
+
+    result = _modules["behaviour"].predict(data)
+    return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# API: Child Health — Infant (< 1 year, child_mortality model)
+# ---------------------------------------------------------------------------
+@app.route("/api/child-infant", methods=["POST"])
+def api_child_infant():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": 400, "error": "No data provided"}), 400
+
+    if "child_mortality" not in _modules or not _model_status.get("child_mortality", {}).get("loaded"):
+        _load_single_model("child_mortality")
+        if not _model_status.get("child_mortality", {}).get("loaded"):
+            return jsonify({"status": 503, "error": "Child mortality model not available"}), 503
+
+    result = _modules["child_mortality"].predict(data)
+    return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# API: Child Health — Older child (>= 1 year, nurture model)
