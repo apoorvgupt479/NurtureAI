@@ -271,3 +271,48 @@ NURTURE_CASES = [
         ]
     },
     {
+        "label": "Moderate risk -> expect sii=2 (Moderate)",
+        "expect_sii": 2,
+        "candidates": [
+            {   # Discovered via brute sweep: same age/SDS/PAQ, higher fitness stage
+                "Basic_Demos-Age": 10, "Basic_Demos-Sex": 0,
+                "Physical-BMI": 17.0, "Physical-Height": 140, "Physical-Weight": 33,
+                "Physical-Waist_Circumference": 58,
+                "Physical-Diastolic_BP": 65, "Physical-Systolic_BP": 102,
+                "Physical-HeartRate": 70,
+                "SDS-SDS_Total_T": 38.0, "PAQ_A-PAQ_A_Total": 1.5,
+                "PAQ_C-PAQ_C_Total": 1.5,
+                "Fitness_Endurance-Max_Stage": 11.0, "Fitness_Endurance-Time_Mins": 38.5,
+                "BIA-BIA_Fat": 17.0, "BIA-BIA_FFM": 36.0, "BIA-BIA_SMM": 26.0,
+            },
+            {   # Alternative from first run
+                "Basic_Demos-Age": 15, "Basic_Demos-Sex": 1,
+                "Physical-BMI": 28.0, "Physical-Height": 165, "Physical-Weight": 76,
+                "Physical-Waist_Circumference": 88,
+                "Physical-Diastolic_BP": 78, "Physical-Systolic_BP": 128,
+                "Physical-HeartRate": 90,
+                "SDS-SDS_Total_T": 67.0, "PAQ_A-PAQ_A_Total": 1.6,
+                "PAQ_C-PAQ_C_Total": 1.6,
+                "Fitness_Endurance-Max_Stage": 3.0, "Fitness_Endurance-Time_Mins": 9.0,
+                "BIA-BIA_Fat": 31.0, "BIA-BIA_FFM": 45.0, "BIA-BIA_SMM": 33.0,
+            },
+        ]
+    },
+    {
+        "label": "Severely at-risk -> expect sii=3 (Severe)",
+        "expect_sii": 3,
+        "candidates": [
+            {   # Obese, completely inactive, terrible sleep, failing fitness
+                "Basic_Demos-Age": 17, "Basic_Demos-Sex": 1,
+                "Physical-BMI": 36.0,  "Physical-Height": 172, "Physical-Weight": 107,
+                "Physical-Waist_Circumference": 108,
+                "Physical-Diastolic_BP": 88,  "Physical-Systolic_BP": 142,
+                "Physical-HeartRate": 102,
+                "SDS-SDS_Total_T": 79, "PAQ_A-PAQ_A_Total": 1.0,
+                "PAQ_C-PAQ_C_Total": 1.0,
+                "Fitness_Endurance-Max_Stage": 1, "Fitness_Endurance-Time_Mins": 3,
+                "BIA-BIA_Fat": 45, "BIA-BIA_FFM": 57, "BIA-BIA_SMM": 40,
+            },
+        ]
+    },
+]
