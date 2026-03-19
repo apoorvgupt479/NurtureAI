@@ -316,3 +316,49 @@ NURTURE_CASES = [
         ]
     },
 ]
+
+nurture_hit = {0: False, 1: False, 2: False, 3: False}
+
+for case in NURTURE_CASES:
+    exp = case["expect_sii"]
+    matched = False
+    for i, candidate in enumerate(case["candidates"]):
+        r = nurture.predict(candidate)
+        assert r["code"] == 200, f"predict() error: {r}"
+        pred  = r["prediction"]["sii"]
+        score = r["prediction"]["behavior_score"]
+        probs = r["prediction"]["probabilities"]
+        nurture_hit[pred] = True
+        if pred == exp:
+            matched = True
+            status = PASS
+            print(f"  {status}  {case['label']}  [candidate {i+1}]")
+            print(f"         got sii={pred} ({RISK_LABELS[pred]}),  behavior_score={score}")
+            sorted_probs = sorted(probs.items(), key=lambda x: -x[1])
+            print(f"         top-2 probs: {sorted_probs[0][0]}={sorted_probs[0][1]:.3f},  "
+                  f"{sorted_probs[1][0]}={sorted_probs[1][1]:.3f}")
+            break
+        else:
+            sorted_probs = sorted(probs.items(), key=lambda x: -x[1])
+            print(f"  [WARN] {case['label']}  [candidate {i+1}]  got sii={pred}, retrying...")
+    if not matched:
+        print(f"  {FAIL}  {case['label']}  -> all candidates produced sii={pred}, expected sii={exp}")
+
+print()
+for sii, found in nurture_hit.items():
+    print(f"  {PASS if found else FAIL}  sii={sii} ({RISK_LABELS[sii]}) was observed")
+coverage_results["nurture"] = nurture_hit
+
+
+# ===========================================================
+# 5. CHATBOT — validation paths (no live API call)
+# ===========================================================
+section("5. CHATBOT — input-validation output paths")
+
+chatbot_path = os.path.join(BASE_DIR, "chatbot", "chroma_full_state.pkl")
+chatbot = _import("chatbot_model", os.path.join(BASE_DIR, "chatbot", "chatbot_model.py"))
+
+print(f"  {INFO} Loading ChromaDB (may take ~30s)...")
+chatbot.load(pkl_path=chatbot_path)
+
+CHATBOT_CASES = [
