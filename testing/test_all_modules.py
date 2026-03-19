@@ -130,3 +130,36 @@ except Exception as e:
 
 # ─────────────────────────────────────────────────────────────
 # 3. CHILD MORTALITY MODEL (< 1 year)
+# ─────────────────────────────────────────────────────────────
+section("3. CHILD MORTALITY MODEL (child_mortality/child_health_model.py)")
+try:
+    child = _import("child_health_model", os.path.join(BASE_DIR, "child_mortality", "child_health_model.py"))
+
+    load_res = child.load()
+    loaded = check("load() returns code 200", load_res.get("code") == 200, str(load_res))
+    results["child_mortality_load"] = loaded
+
+    if loaded:
+        sample = {feat: 0 for feat in child.FEATURE_ORDER}
+        sample["Resp_height"] = 155.0
+        sample["Child_under5"] = 2
+        sample["Tot_child_born"] = 3
+
+        r1 = child.predict(sample)
+        results["child_mortality_predict"] = check("predict() valid input -> code 200", r1.get("code") == 200, str(r1))
+        check("predict() returns 'prediction' key", "prediction" in r1)
+
+        # Alias-based input
+        alias_input = dict(sample)
+        alias_input["state"] = "Bihar"
+        alias_input["delivery_place"] = "private"
+        alias_input["water_source"] = "other"
+        r2 = child.predict(alias_input)
+        check("predict() alias inputs work -> code 200", r2.get("code") == 200, str(r2))
+
+        # app.py status check compatibility
+        status_val = load_res.get("code", load_res.get("status", 500))
+        check("load() compatible with app.py status check (200)", status_val == 200)
+except Exception as e:
+    print(f"  {FAIL} Module crashed: {e}")
+    traceback.print_exc()
