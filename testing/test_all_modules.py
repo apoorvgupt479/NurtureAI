@@ -163,3 +163,36 @@ try:
 except Exception as e:
     print(f"  {FAIL} Module crashed: {e}")
     traceback.print_exc()
+    results["child_mortality_load"] = False
+    results["child_mortality_predict"] = False
+
+
+# ─────────────────────────────────────────────────────────────
+# 4. NURTURE MODEL (>= 1 year child behaviour)
+# ─────────────────────────────────────────────────────────────
+section("4. NURTURE MODEL (nurture_model/nurture_model.py)")
+try:
+    nurture = _import("nurture_child_model", os.path.join(BASE_DIR, "nurture_model", "nurture_model.py"))
+
+    load_res = nurture.load()
+    loaded = check("load() returns code 200", load_res.get("code") == 200, str(load_res))
+    results["nurture_load"] = loaded
+
+    if loaded:
+        valid_input = {
+            "Basic_Demos-Age": 10, "Basic_Demos-Sex": 0,
+            "Physical-BMI": 18.5, "Physical-Height": 140, "Physical-Weight": 36,
+            "Physical-Waist_Circumference": 60, "Physical-Diastolic_BP": 65,
+            "Physical-Systolic_BP": 105, "Physical-HeartRate": 70,
+            "SDS-SDS_Total_T": 36, "PAQ_A-PAQ_A_Total": 3.6,
+            "Fitness_Endurance-Max_Stage": 12, "Fitness_Endurance-Time_Mins": 45,
+            "BIA-BIA_Fat": 14, "BIA-BIA_FFM": 31, "BIA-BIA_SMM": 23
+        }
+        r1 = nurture.predict(valid_input)
+        results["nurture_predict"] = check("predict() valid input -> code 200", r1.get("code") == 200, str(r1))
+        check("predict() returns 'prediction' dict", isinstance(r1.get("prediction"), dict))
+        check("predict() has sii key", "sii" in r1.get("prediction", {}))
+        check("predict() sii in [0,1,2,3]", r1.get("prediction", {}).get("sii") in [0, 1, 2, 3])
+
+        # Minimal input (missing features auto-filled with medians)
+        r2 = nurture.predict({"Basic_Demos-Age": 14, "Basic_Demos-Sex": 1})
