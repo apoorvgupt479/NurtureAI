@@ -395,3 +395,82 @@ input::placeholder { color: var(--text-muted); }
     display: flex;
     align-items: center;
     gap: 8px;
+}
+.stepper input {
+    width: 70px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+.stepper-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+}
+.stepper-btn:hover { background: var(--primary-light); border-color: var(--primary); }
+.stepper-unit {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+/* ---- Checklist ---- */
+.checklist { display: flex; flex-direction: column; gap: 10px; }
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: all var(--transition);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+.check-item:has(input:checked) {
+    border-color: var(--success);
+    background: var(--success-light);
+}
+.check-item input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--success);
+}
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ---- Section Header ---- */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 24px 0 12px;
+}
+.section-header h2 { font-size: 1.15rem; font-weight: 700; }
+
+/* ---- Dashboard Header ---- */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-top: 12px;
+}
+.dashboard-header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+/* ---- Empty State ---- */
+.empty-state {
+    text-align: center;
+    padding: 32px 20px;
+    color: var(--text-muted);
