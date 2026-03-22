@@ -362,3 +362,48 @@ print(f"  {INFO} Loading ChromaDB (may take ~30s)...")
 chatbot.load(pkl_path=chatbot_path)
 
 CHATBOT_CASES = [
+    {
+        "label": "Missing API key    -> code 400, status=error",
+        "data":  {"query": "My child has a rash", "google_api_key": ""},
+        "expect_code": 400, "expect_status": "error"
+    },
+    {
+        "label": "Empty query        -> code 400, status=error",
+        "data":  {"query": "", "google_api_key": "dummy_key"},
+        "expect_code": 400, "expect_status": "error"
+    },
+    {
+        "label": "No query key       -> code 400, status=error",
+        "data":  {"google_api_key": "dummy_key"},
+        "expect_code": 400, "expect_status": "error"
+    },
+    {
+        "label": "Model not loaded   -> code 500, status=error",
+        "data":  None,   # special: call predict directly on unloaded state
+        "expect_code": 500, "expect_status": "error"
+    },
+]
+
+import importlib.util as _ilu
+_spec2 = _ilu.spec_from_file_location("chatbot_unloaded",
+    os.path.join(BASE_DIR, "chatbot", "chatbot_model.py"))
+_mod_unloaded = _ilu.module_from_spec(_spec2)
+_spec2.loader.exec_module(_mod_unloaded)
+# _chroma_collection is None by default -> simulates "not loaded"
+
+chatbot_hit = {}
+for case in CHATBOT_CASES:
+    if case["data"] is None:
+        r = _mod_unloaded.predict({"query": "test", "google_api_key": "dummy"})
+    else:
+        r = chatbot.predict(case["data"])
+    code_ok   = r.get("code")   == case["expect_code"]
+    status_ok = r.get("status") == case["expect_status"]
+    hit = code_ok and status_ok
+    status = PASS if hit else FAIL
+    print(f"  {status}  {case['label']}")
+    print(f"         got code={r.get('code')}, status={r.get('status')}")
+    chatbot_hit[case["label"]] = hit
+
+coverage_results["chatbot"] = chatbot_hit
+
