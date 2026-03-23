@@ -171,3 +171,28 @@ def api_child_infant():
 
 # ---------------------------------------------------------------------------
 # API: Child Health — Older child (>= 1 year, nurture model)
+# ---------------------------------------------------------------------------
+@app.route("/api/child-health", methods=["POST"])
+def api_child_health():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": 400, "error": "No data provided"}), 400
+
+    if "nurture" not in _modules or not _model_status.get("nurture", {}).get("loaded"):
+        _load_single_model("nurture")
+        if not _model_status.get("nurture", {}).get("loaded"):
+            return jsonify({"status": 503, "error": "Nurture model not available"}), 503
+
+    result = _modules["nurture"].predict(data)
+    return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# API: Celiac Disease Check
+# ---------------------------------------------------------------------------
+@app.route("/api/celiac-check", methods=["POST"])
+def api_celiac():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": 400, "error": "No data provided"}), 400
+
