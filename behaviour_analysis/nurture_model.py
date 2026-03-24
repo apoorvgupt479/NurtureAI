@@ -214,3 +214,39 @@ def predict(input_data):
                 sleep_dev_norm   * 0.15
             )
 
+            # Lifestyle Risk Score
+            no_exercise = 1 if inp["Exercise_Any"] == 2 else 0
+            smoking = 1 if inp["Smoked_100_Cigs"] == 1 else 0
+            sleep_quality_risk = min(abs(inp["Sleep_Hours"] - 7.5) / 4.5, 1.0)
+            alcohol_risk = min(inp["Alcohol_Days_Monthly"] / 30.0, 1.0)
+            bmi = inp["BMI_Indicator"]
+            bmi_deviation = 0 if 18.5 <= bmi <= 25 else min(abs(bmi - 21.75) / 20, 1.0)
+
+            lifestyle_risk = (
+                no_exercise        * 0.25 +
+                smoking            * 0.20 +
+                sleep_quality_risk * 0.20 +
+                alcohol_risk       * 0.20 +
+                bmi_deviation      * 0.15
+            )
+
+            # Physical Risk Score
+            phys_days_norm = min(inp["Physical_Health_Days"] / 30.0, 1.0)
+            bmi_risk_cont = 0 if 18.5 <= bmi <= 25 else min(abs(bmi - 21.75) / 20, 1.0)
+
+            physical_risk = (
+                phys_days_norm  * 0.45 +
+                gen_health_norm * 0.35 +
+                bmi_risk_cont   * 0.20
+            )
+
+            overall = (mental_stress + lifestyle_risk + physical_risk) / 3
+
+            risk_scores = {
+                "Mental_Stress_Score":  round(mental_stress, 4),
+                "Lifestyle_Risk_Score": round(lifestyle_risk, 4),
+                "Physical_Risk_Score":  round(physical_risk, 4),
+                "Overall_Risk":         round(overall, 4),
+            }
+
+            # --- Generate Recommendations ---
