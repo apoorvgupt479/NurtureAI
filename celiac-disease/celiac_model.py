@@ -146,3 +146,25 @@ def predict(input_data):
         ]
 
         features = np.array(features).reshape(1, -1)
+
+        prediction = model.predict(features)[0]
+
+        return {
+            "status": "success",
+            "code": 200,
+            "prediction": int(prediction)
+        }
+
+    except KeyError as e:
+        return {
+            "status": "error",
+            "code": 400,
+            "message": f"Missing or invalid input field: {str(e)}"
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "code": 500,
+            "message": str(e)
+        }
