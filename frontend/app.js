@@ -465,3 +465,97 @@ const App = {
         }
     },
 
+    // ================================================================
+    // Results Rendering
+    // ================================================================
+    renderInfantResults(result, child) {
+        const container = document.getElementById("results-container");
+        const prediction = result.prediction;
+        const prob = result.probability_class_1;
+
+        // Class 1 = Survival/Healthy, Class 0 = Mortality/Risk
+        const isHealthy = prediction === 1;
+        const riskProb = 1 - prob; // Risk is the inverse of survival probability
+
+        const icon = isHealthy ? "✅" : "⚠️";
+        const title = isHealthy ? "Low Risk" : "Elevated Risk Detected";
+        const alertClass = isHealthy ? "alert-success" : "alert-danger";
+        const alertMsg = isHealthy
+            ? "Based on the information provided, your infant appears to be at <strong>low risk</strong>. Keep up the great care!"
+            : "Some risk factors were detected. Please consult with your pediatrician for a thorough evaluation.";
+
+        container.innerHTML = `
+            <div class="result-header">
+                <div class="result-icon">${icon}</div>
+                <h2>${child ? child.name + " — " : ""}${title}</h2>
+                <p class="result-subtitle">Infant Health Assessment</p>
+            </div>
+
+            <div class="result-alert ${alertClass}">${alertMsg}</div>
+
+            ${prob !== undefined ? `
+            <div class="result-card">
+                <h3>📊 Risk Probability</h3>
+                <div class="result-row">
+                    <span class="result-label">Risk Score</span>
+                    <span class="result-value">${(riskProb * 100).toFixed(1)}%</span>
+                </div>
+                <div class="result-bar">
+                    <div class="result-bar-fill ${riskProb > 0.5 ? 'bar-red' : riskProb > 0.2 ? 'bar-yellow' : 'bar-green'}"
+                         style="width:${(riskProb * 100).toFixed(1)}%"></div>
+                </div>
+            </div>` : ""}
+
+            <button class="btn btn-primary btn-block" onclick="App.showScreen('screen-dashboard'); App.renderDashboard();">
+                ← Back to Dashboard
+            </button>
+        `;
+
+        this.showScreen("screen-results");
+    },
+
+    renderChildResults(result, child) {
+        const container = document.getElementById("results-container");
+
+        if (result.status === "error" || result.code === 500) {
+            container.innerHTML = `
+                <div class="result-header">
+                    <div class="result-icon">❌</div>
+                    <h2>Assessment Failed</h2>
+                    <p class="result-subtitle">${result.message || "Unknown error"}</p>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="App.showScreen('screen-dashboard')">← Back</button>
+            `;
+            this.showScreen("screen-results");
+            return;
+        }
+
+        const pred = result.prediction || {};
+        const sii = pred.sii !== undefined ? pred.sii : -1;
+        const riskLabel = pred.risk_label || "Unknown";
+        const behaviorScore = pred.behavior_score || 0;
+        const probabilities = pred.probabilities || {};
+
+        const icons = { 0: "🟢", 1: "🟡", 2: "🟠", 3: "🔴" };
+        const alertClasses = { 0: "alert-success", 1: "alert-warning", 2: "alert-warning", 3: "alert-danger" };
+        const icon = icons[sii] || "❓";
+
+        const messages = {
+            0: "Your child shows a <strong>healthy</strong> profile. Keep nurturing their wellbeing!",
+            1: "Some <strong>mild</strong> risk factors detected. Small lifestyle adjustments can make a big difference.",
+            2: "There are <strong>moderate</strong> concerns. Consider consulting a pediatrician for personalized guidance.",
+            3: "The assessment shows <strong>significant</strong> risk factors. We strongly recommend professional consultation."
+        };
+
+        let probHTML = "";
+        for (const [label, prob] of Object.entries(probabilities)) {
+            const pct = (prob * 100).toFixed(1);
+            const barColor = label.includes("Healthy") ? "bar-green" : label.includes("Mild") ? "bar-yellow" :
+                             label.includes("Moderate") ? "bar-yellow" : "bar-red";
+            probHTML += `
+                <div class="result-row">
+                    <span class="result-label">${label.replace(/sii=\d+ \(/, "").replace(")", "")}</span>
+                    <span class="result-value">${pct}%</span>
+                </div>
+                <div class="result-bar"><div class="result-bar-fill ${barColor}" style="width:${pct}%"></div></div>
+            `;
