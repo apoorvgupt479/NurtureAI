@@ -105,3 +105,24 @@ COUNT_FEATURES = {
     "Tot_child_born",
     "Sons_died",
     "Daughters_died",
+}
+
+STATE_FEATURES = {
+    "bihar": "State_Bihar",
+    "jharkhand": "State_Jharkhand",
+    "meghalaya": "State_Meghalaya",
+    "mizoram": "State_Mizoram",
+    "sikkim": "State_Sikkim",
+    "uttar pradesh": "State_Uttar Pradesh",
+    "uttarakhand": "State_Uttarakhand",
+}
+
+model = None
+
+
+def _to_binary(value):
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"1", "true", "yes", "y"}:
+            return 1
+        if lowered in {"0", "false", "no", "n"}:
