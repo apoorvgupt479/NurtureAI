@@ -559,3 +559,96 @@ const App = {
                 </div>
                 <div class="result-bar"><div class="result-bar-fill ${barColor}" style="width:${pct}%"></div></div>
             `;
+        }
+
+        container.innerHTML = `
+            <div class="result-header">
+                <div class="result-icon">${icon}</div>
+                <h2>${child ? child.name + " — " : ""}${riskLabel}</h2>
+                <p class="result-subtitle">Child Health & Behaviour Assessment</p>
+            </div>
+
+            <div class="result-alert ${alertClasses[sii] || 'alert-warning'}">
+                ${messages[sii] || "Assessment complete."}
+            </div>
+
+            ${pred.behavior_score !== undefined ? `
+            <div class="result-card">
+                <h3>🧠 Behavior Score</h3>
+                <div class="result-row">
+                    <span class="result-label">Lifestyle Score</span>
+                    <span class="result-value">${behaviorScore} / 100</span>
+                </div>
+                <div class="result-bar">
+                    <div class="result-bar-fill ${behaviorScore >= 60 ? 'bar-green' : behaviorScore >= 35 ? 'bar-yellow' : 'bar-red'}"
+                         style="width:${behaviorScore}%"></div>
+                </div>
+            </div>
+            ` : ""}
+
+            ${probHTML ? `<div class="result-card"><h3>📊 Risk Breakdown</h3>${probHTML}</div>` : ""}
+
+            <button class="btn btn-primary btn-block" onclick="App.showScreen('screen-dashboard'); App.renderDashboard();">
+                ← Back to Dashboard
+            </button>
+        `;
+
+        this.showScreen("screen-results");
+    },
+
+    // ================================================================
+    // Utility Helpers
+    // ================================================================
+    toggleSelect(btn) {
+        const field = btn.dataset.field;
+        const value = btn.dataset.value;
+        const group = btn.parentElement;
+        group.querySelectorAll(".toggle-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(field).value = value;
+
+        // Show/hide exact age field
+        if (field === "child-age-group") {
+            const ageGroup = document.getElementById("child-exact-age-group");
+            if (ageGroup) ageGroup.style.display = value === "older" ? "block" : "none";
+        }
+    },
+
+    adjustStepper(id, delta) {
+        const el = document.getElementById(id);
+        const min = parseInt(el.min) || 0;
+        const max = parseInt(el.max) || 100;
+        let val = parseInt(el.value) || 0;
+        val = Math.max(min, Math.min(max, val + delta));
+        el.value = val;
+    },
+
+    showLoading(text) {
+        document.getElementById("loading-text").textContent = text || "Processing...";
+        document.getElementById("loading-overlay").classList.add("active");
+    },
+
+    hideLoading() {
+        document.getElementById("loading-overlay").classList.remove("active");
+    },
+
+    toast(msg) {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 2500);
+    },
+
+    resetApp() {
+        if (confirm("Reset all data? This will clear your profile and children.")) {
+            localStorage.removeItem("nurtureai_state");
+            this.state = { parent: null, children: [], selectedChild: null, chatHistory: [] };
+            this.showScreen("screen-welcome");
+            this.toast("App reset complete");
+        }
+    },
+
+    // ================================================================
+    // Celiac Disease Form
+    // ================================================================
+    startCeliacAssessment(childId) {
