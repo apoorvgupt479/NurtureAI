@@ -147,3 +147,25 @@ def _normalize_feature_value(feature_name, value):
 def _apply_alias_preprocessing(row, input_data):
     delivery_place = input_data.get("delivery_place", input_data.get("DeliveryPlace"))
     if delivery_place is not None and "DeliveryPlace_Private" not in input_data:
+        row["DeliveryPlace_Private"] = 1 if str(delivery_place).strip().lower() == "private" else 0
+
+    water_source = input_data.get("water_source", input_data.get("Water_Source"))
+    if water_source is not None and "Water_Source_Other" not in input_data:
+        row["Water_Source_Other"] = 1 if str(water_source).strip().lower() == "other" else 0
+
+    state_value = input_data.get("state", input_data.get("State"))
+    if state_value is not None and not any(k.startswith("State_") for k in input_data):
+        for state_col in STATE_FEATURES.values():
+            row[state_col] = 0
+        mapped_state = STATE_FEATURES.get(str(state_value).strip().lower())
+        if mapped_state is not None:
+            row[mapped_state] = 1
+
+
+def _build_model_row(input_data):
+    row = {feature: 0 for feature in FEATURE_ORDER}
+
+    for key, value in input_data.items():
+        if key in FEATURE_ORDER:
+            row[key] = _normalize_feature_value(key, value)
+
