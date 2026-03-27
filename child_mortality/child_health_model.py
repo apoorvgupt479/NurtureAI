@@ -126,3 +126,24 @@ def _to_binary(value):
         if lowered in {"1", "true", "yes", "y"}:
             return 1
         if lowered in {"0", "false", "no", "n"}:
+            return 0
+    return 1 if bool(value) else 0
+
+
+def _normalize_feature_value(feature_name, value):
+    if feature_name in BINARY_FEATURES:
+        return _to_binary(value)
+    if feature_name in COUNT_FEATURES:
+        return max(0, int(value))
+    if feature_name == "Resp_height":
+        h = float(value)
+        # Convert cm to meters if value is large
+        if h > 5.0:
+            return h / 100.0
+        return h
+    return float(value)
+
+
+def _apply_alias_preprocessing(row, input_data):
+    delivery_place = input_data.get("delivery_place", input_data.get("DeliveryPlace"))
+    if delivery_place is not None and "DeliveryPlace_Private" not in input_data:
