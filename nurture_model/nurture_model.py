@@ -158,3 +158,43 @@ def predict(input_data: dict) -> dict:
 
     Parameters
     ----------
+    input_data : dict
+        A dictionary with feature names as keys and values as numbers.
+        Example:
+        {
+            "Basic_Demos-Age": 12,
+            "Basic_Demos-Sex": 0,
+            "Physical-BMI": 20.0,
+            ...
+        }
+        Missing features are filled in automatically using the median from training.
+
+    Returns
+    -------
+    dict with keys:
+        status         : "ok" or "error"
+        code           : 200 (success) or error code
+        prediction     : dict with sii, risk_label, behavior_score, probabilities
+    """
+    global _model_bundle
+
+    # ── Step A: Make sure the model has been loaded ────────────────────────
+    if _model_bundle is None:
+        return {
+            "status": "error",
+            "message": "Model is not loaded. Please call load() first.",
+            "code": 503
+        }
+
+    # ── Step B: Validate that the input is a dictionary ───────────────────
+    if not isinstance(input_data, dict):
+        return {
+            "status": "error",
+            "message": f"input_data must be a Python dict. Got: {type(input_data).__name__}",
+            "code": 400
+        }
+
+    try:
+        # ── Step C: Pull out the saved model components ───────────────────
+        model         = _model_bundle["model"]          # The trained RandomForest
+        feature_names = _model_bundle["feature_names"]  # List of feature names in correct order
