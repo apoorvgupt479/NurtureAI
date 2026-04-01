@@ -169,3 +169,24 @@ def _build_model_row(input_data):
         if key in FEATURE_ORDER:
             row[key] = _normalize_feature_value(key, value)
 
+    _apply_alias_preprocessing(row, input_data)
+    return row
+
+
+def load():
+    global model
+    try:
+        import os
+        pkl_path = os.path.join(os.path.dirname(__file__), "model.pkl")
+        with open(pkl_path, "rb") as f:
+            model = pickle.load(f)
+        return {"status": "success", "code": 200}
+    except Exception as e:
+        return {"status": "error", "code": 500, "message": str(e)}
+
+
+def predict(input_data):
+    try:
+        global model
+
+        if model is None:
