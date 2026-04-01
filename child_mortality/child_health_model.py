@@ -190,3 +190,25 @@ def predict(input_data):
         global model
 
         if model is None:
+            return {"error": "Model not loaded", "code": 500}
+
+        model_row = _build_model_row(input_data)
+        input_df = pd.DataFrame([[model_row[col] for col in FEATURE_ORDER]], columns=FEATURE_ORDER)
+
+        prediction = model.predict(input_df)[0]
+        result = {
+            "prediction": int(prediction),
+            "code": 200,
+        }
+
+        if hasattr(model, "predict_proba"):
+            probability = float(model.predict_proba(input_df)[0][1])
+            result["probability_class_1"] = probability
+
+        return result
+
+    except Exception as e:
+        return {
+            "error": str(e),
+            "code": 500,
+        }
