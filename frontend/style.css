@@ -553,3 +553,83 @@ input::placeholder { color: var(--text-muted); }
     display: flex;
     align-items: center;
     gap: 8px;
+}
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+.result-row:last-child { border-bottom: none; }
+.result-label { color: var(--text-light); }
+.result-value { font-weight: 600; }
+.result-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+.result-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+.bar-green  { background: var(--success); }
+.bar-yellow { background: var(--warning); }
+.bar-red    { background: var(--danger); }
+.bar-blue   { background: var(--secondary); }
+
+.result-alert {
+    padding: 14px 16px;
+    border-radius: var(--radius-xs);
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.alert-success { background: var(--success-light); color: #00845A; border: 1px solid rgba(0,184,148,0.2); }
+.alert-warning { background: var(--warning-light); color: #9A7B12; border: 1px solid rgba(253,203,110,0.3); }
+.alert-danger  { background: var(--danger-light); color: #C0392B; border: 1px solid rgba(255,118,117,0.3); }
+
+.recommendation-list {
+    list-style: none;
+    padding: 0;
+}
+.recommendation-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+}
+.recommendation-list li:last-child { border-bottom: none; }
+.recommendation-list li::before { content: "💡"; flex-shrink: 0; }
+
+/* ---- Responsive ---- */
+@media (max-width: 480px) {
+    .welcome-container h1 { font-size: 2.2rem; }
+    .card { padding: 22px 18px; }
+    .form-row { flex-direction: column; gap: 0; }
+    .form-group.half, .form-group.third { flex: auto; }
+    .btn-lg { padding: 14px 24px; font-size: 1rem; }
+}
+@media (min-width: 768px) {
+    .screen-content { padding: 32px 24px 60px; }
+    .welcome-container h1 { font-size: 3.2rem; }
+}
+
+/* ============================================================
+   Settings Modal
+   ============================================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
