@@ -235,3 +235,82 @@
             <div class="card-row">
                 <div class="card-icon-sm">🧑‍🍼</div>
                 <div>
+                    <h3 id="parent-card-name">Parent</h3>
+                    <p class="card-label" id="parent-card-status">Profile complete</p>
+                </div>
+                <span class="badge badge-green" id="parent-badge">✓</span>
+            </div>
+        </div>
+
+        <!-- Children Section -->
+        <div class="section-header">
+            <h2>Your Children</h2>
+        </div>
+        <div id="children-list">
+            <!-- Dynamically populated -->
+        </div>
+        <div class="empty-state" id="no-children">
+            <p>No children added yet.<br>Tap below to add your first child.</p>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" onclick="App.showScreen('screen-add-child')">
+            + Add Child
+        </button>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SCREEN: Add Child                                             -->
+<!-- ============================================================ -->
+<section id="screen-add-child" class="screen">
+    <div class="screen-content">
+        <button class="btn-back" onclick="App.showScreen('screen-dashboard')">← Back</button>
+        <div class="card">
+            <div class="card-icon">👶</div>
+            <h2>Add a Child</h2>
+            <p class="helper">Tell us about your child so we can use the right health assessment.</p>
+
+            <div class="form-group">
+                <label for="child-name">Child's Name</label>
+                <input type="text" id="child-name" placeholder="e.g. Arya" required>
+            </div>
+
+            <div class="form-group">
+                <label>Is your child older than 1 year?</label>
+                <p class="helper-sm">We use different health models for infants vs older children.</p>
+                <div class="toggle-group">
+                    <button class="toggle-btn" data-field="child-age-group" data-value="infant" onclick="App.toggleSelect(this)">Under 1 year 👶</button>
+                    <button class="toggle-btn active" data-field="child-age-group" data-value="older" onclick="App.toggleSelect(this)">1 year or older 🧒</button>
+                </div>
+                <input type="hidden" id="child-age-group" value="older">
+            </div>
+
+            <!-- Show exact age if older -->
+            <div class="form-group" id="child-exact-age-group">
+                <label for="child-age">Child's Age (years)</label>
+                <div class="stepper">
+                    <button class="stepper-btn" onclick="App.adjustStepper('child-age',-1)">−</button>
+                    <input type="number" id="child-age" value="5" min="1" max="22">
+                    <button class="stepper-btn" onclick="App.adjustStepper('child-age',1)">+</button>
+                    <span class="stepper-unit">years</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Sex</label>
+                <div class="toggle-group">
+                    <button class="toggle-btn active" data-field="child-sex" data-value="0" onclick="App.toggleSelect(this)">Female</button>
+                    <button class="toggle-btn" data-field="child-sex" data-value="1" onclick="App.toggleSelect(this)">Male</button>
+                </div>
+                <input type="hidden" id="child-sex" value="0">
+            </div>
+
+            <button class="btn btn-primary btn-lg btn-block" onclick="App.addChild()" id="btn-add-child">
+                Add & Start Assessment →
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SCREEN: Infant Assessment (< 1 year)                          -->
+<!-- ============================================================ -->
