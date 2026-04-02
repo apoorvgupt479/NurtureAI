@@ -652,3 +652,97 @@ const App = {
     // Celiac Disease Form
     // ================================================================
     startCeliacAssessment(childId) {
+        this.state.selectedChild = childId;
+        const child = this.state.children.find(c => c.id === childId);
+        if (!child) return;
+        this.showScreen("screen-celiac-form");
+        this.celiacStep(1);
+    },
+
+    celiacStep(step) {
+        document.querySelectorAll("#screen-celiac-form .wizard-step").forEach(s => s.classList.remove("active"));
+        const target = document.getElementById("celiac-step-" + step);
+        if (target) target.classList.add("active");
+
+        document.querySelectorAll("#celiac-steps .step").forEach(s => {
+            const n = parseInt(s.dataset.step);
+            s.classList.toggle("active", n === step);
+            s.classList.toggle("done", n < step);
+        });
+    },
+
+    showDiabetesType(show) {
+        document.getElementById("cel-diabetes-type-group").style.display = show ? "block" : "none";
+    },
+
+    async submitCeliac() {
+        this.showLoading("Running celiac screening...");
+        const child = this.state.children.find(c => c.id === this.state.selectedChild);
+        if (!child) { this.hideLoading(); return; }
+
+        const data = {
+            "Age": child.age,
+            "Gender": child.sex === 0 ? "Female" : "Male",
+            "Diabetes": document.getElementById("cel-diabetes").value,
+            "Diabetes Type": document.getElementById("cel-diabetes").value === "Yes" ? document.getElementById("cel-diabetes-type").value : "Unknown",
+            "Diarrhoea": document.getElementById("cel-diarrhoea").checked ? "Yes" : "No",
+            "Abdominal": document.getElementById("cel-abdominal").checked ? "Yes" : "No",
+            "Short_Stature": document.getElementById("cel-short-stature").checked ? "Yes" : "No",
+            "Sticky_Stool": document.getElementById("cel-sticky-stool").checked ? "Yes" : "No",
+            "Weight_loss": document.getElementById("cel-weight-loss").checked ? "Yes" : "No",
+            "IgA": parseFloat(document.getElementById("cel-iga").value) || 0.0,
+            "IgG": parseFloat(document.getElementById("cel-igg").value) || 0.0,
+            "IgM": parseFloat(document.getElementById("cel-igm").value) || 0.0
+        };
+
+        try {
+            const res = await fetch(API + "/api/celiac-check", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            this.hideLoading();
+            this.renderCeliacResults(result, child);
+        } catch (e) {
+            this.hideLoading();
+            this.toast("Error: " + e.message);
+        }
+    },
+
+    renderCeliacResults(result, child) {
+        const container = document.getElementById("results-container");
+
+        if (result.status === "error" || result.code === 500) {
+            container.innerHTML = `
+                <div class="result-header">
+                    <div class="result-icon">❌</div>
+                    <h2>Assessment Failed</h2>
+                    <p class="result-subtitle">${result.message || "Unknown error"}</p>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="App.showScreen('screen-dashboard')">← Back</button>
+            `;
+            this.showScreen("screen-results");
+            return;
+        }
+
+        const isPositive = result.prediction === 1;
+        const icon = isPositive ? "⚠️" : "✅";
+        const title = isPositive ? "High Risk Detected" : "Low Risk";
+        const alertClass = isPositive ? "alert-danger" : "alert-success";
+        const alertMsg = isPositive 
+            ? "The screening indicates a <strong>high risk</strong> of Celiac Disease based on symptoms and available lab markers. A formal medical diagnosis (such as an endoscopy) is strongly recommended."
+            : "The screening indicates a <strong>low risk</strong> of Celiac Disease. However, if symptoms persist, consult a doctor.";
+
+        container.innerHTML = `
+            <div class="result-header">
+                <div class="result-icon">${icon}</div>
+                <h2>${child ? child.name + " — " : ""}${title}</h2>
+                <p class="result-subtitle">Celiac Disease Screening</p>
+            </div>
+            <div class="result-alert ${alertClass}">${alertMsg}</div>
+            <button class="btn btn-primary btn-block" onclick="App.showScreen('screen-dashboard'); App.renderDashboard();">
+                ← Back to Dashboard
+            </button>
+        `;
+        this.showScreen("screen-results");
