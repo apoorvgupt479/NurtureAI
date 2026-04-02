@@ -212,3 +212,46 @@ def predict(input_data: dict) -> dict:
             - "child_info"     (dict) : Child age and symptoms.
             - "parent_info"    (dict) : Parent observations.
             - "chat_history"   (list) : Previous conversation turns.
+            - "n_results"      (int)  : Number of RAG docs to retrieve (default 3).
+
+    Returns:
+        dict: Structured JSON response with status, message, and severity flags.
+    """
+    global _chroma_collection
+
+    # ---- Validate model is loaded ----
+    if _chroma_collection is None:
+        return {
+            "status": "error",
+            "code": 500,
+            "message": "Model not loaded. Call load() first.",
+            "isSerious": False,
+            "shouldCallEmergency": False
+        }
+
+    # ---- Validate required inputs ----
+    if not isinstance(input_data, dict):
+        return {
+            "status": "error",
+            "code": 400,
+            "message": "input_data must be a dictionary.",
+            "isSerious": False,
+            "shouldCallEmergency": False
+        }
+
+    query = input_data.get("query", "").strip()
+    if not query:
+        return {
+            "status": "error",
+            "code": 400,
+            "message": "Missing required field: 'query' must be a non-empty string.",
+            "isSerious": False,
+            "shouldCallEmergency": False
+        }
+
+    # ---- Resolve API key ----
+    api_key = input_data.get("google_api_key") or os.environ.get("GOOGLE_API_KEY", "")
+    if not api_key:
+        return {
+            "status": "error",
+            "code": 400,
