@@ -196,3 +196,35 @@ try:
 
         # Minimal input (missing features auto-filled with medians)
         r2 = nurture.predict({"Basic_Demos-Age": 14, "Basic_Demos-Sex": 1})
+        check("predict() minimal input (medians used) -> code 200", r2.get("code") == 200, str(r2))
+
+        # app.py uses load() and checks result.get("code", result.get("status", 500))
+        status_val = load_res.get("code", load_res.get("status", 500))
+        check("load() compatible with app.py status check (200)", status_val == 200)
+
+        # app.py checks _model_status[name].get("loaded") -> set from status_code in (200, "success", "ok")
+        check("load() status 'ok' is recognised by app.py", load_res.get("status") in (200, "success", "ok"))
+except Exception as e:
+    print(f"  {FAIL} Module crashed: {e}")
+    traceback.print_exc()
+    results["nurture_load"] = False
+    results["nurture_predict"] = False
+
+
+# ─────────────────────────────────────────────────────────────
+# 5. CHATBOT MODEL
+# ─────────────────────────────────────────────────────────────
+section("5. CHATBOT MODEL (chatbot/chatbot_model.py)")
+try:
+    chatbot_path = os.path.join(BASE_DIR, "chatbot", "chroma_full_state.pkl")
+    chatbot = _import("chatbot_model", os.path.join(BASE_DIR, "chatbot", "chatbot_model.py"))
+
+    print(f"  {INFO} Loading ChromaDB (this may take ~30s for 46 MB pkl)...")
+    load_res = chatbot.load(pkl_path=chatbot_path)
+    loaded = check("load() returns code 200", load_res.get("code") == 200, str(load_res))
+    results["chatbot_load"] = loaded
+
+    if loaded:
+        # No API key — should return 400
+        r1 = chatbot.predict({"query": "What is fever?", "google_api_key": ""})
+        check("predict() missing API key -> code 400", r1.get("code") == 400, str(r1))
