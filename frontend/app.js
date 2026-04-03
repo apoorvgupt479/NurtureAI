@@ -746,3 +746,96 @@ const App = {
             </button>
         `;
         this.showScreen("screen-results");
+    },
+
+    // ================================================================
+    // Settings (API Key)
+    // ================================================================
+    openSettings() {
+        document.getElementById("settings-modal").classList.add("active");
+    },
+    closeSettings() {
+        document.getElementById("settings-modal").classList.remove("active");
+    },
+    async saveApiKey() {
+        const key = document.getElementById("settings-api-key").value.trim();
+        if (!key) return;
+        try {
+            await fetch(API + "/api/save-api-key", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({api_key: key})
+            });
+            this.toast("API key saved");
+            document.getElementById("settings-api-key").value = "";
+            this.checkApiKey();
+            this.closeSettings();
+        } catch(e) {
+            this.toast("Error saving API key");
+        }
+    },
+
+    // ================================================================
+    // Chatbot
+    // ================================================================
+    toggleChat() {
+        const drawer = document.getElementById("chat-drawer");
+        if (drawer.classList.contains("active")) {
+            drawer.classList.remove("active");
+        } else {
+            drawer.classList.add("active");
+            
+            // If chat is empty, initialize it based on children
+            if (this.state.chatHistory.length === 0) {
+                if (this.state.children.length === 0) {
+                    this.state.chatHistory.push({role: "ai", text: "Please add a child profile first from the dashboard so I can help you with specific medical questions."});
+                } else if (this.state.children.length === 1) {
+                    this.state.chatContextChildId = this.state.children[0].id;
+                    this.state.chatHistory.push({role: "ai", text: `Hi! I'm your NurtureAI assistant. I'm ready to answer questions about ${this.state.children[0].name}. How can I help?`});
+                } else {
+                    // Multiple children, ask to select
+                    this.state.chatContextChildId = null;
+                }
+            }
+            
+            this.renderMessages();
+            setTimeout(()=> document.getElementById("chat-input").focus(), 100);
+        }
+    },
+
+    setChatContext(childId) {
+        const child = this.state.children.find(c => c.id === childId);
+        if (child) {
+            this.state.chatContextChildId = childId;
+            this.state.chatHistory.push({role: "ai", text: `Got it. Let's talk about ${child.name}. What questions do you have?`});
+            this.save();
+            this.renderMessages();
+        }
+    },
+
+    renderMessages() {
+        const container = document.getElementById("chat-messages");
+        container.innerHTML = "";
+        
+        // Show selection buttons if multiple children and none selected
+        if (this.state.children.length > 1 && !this.state.chatContextChildId) {
+            container.innerHTML += `
+                <div class="chat-msg ai">
+                    <div class="chat-bubble">Hi! I'm your NurtureAI assistant. Which child would you like to talk about today?</div>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+                    ${this.state.children.map(c => `<button class="btn btn-ghost" style="padding:6px 12px; font-size:0.85rem;" onclick="App.setChatContext('${c.id}')">${c.name}</button>`).join('')}
+                </div>
+            `;
+        }
+
+        this.state.chatHistory.forEach(msg => {
+            container.innerHTML += `
+                <div class="chat-msg ${msg.role === 'user' ? 'user' : 'ai'}">
+                    <div class="chat-bubble">${msg.text}</div>
+                </div>
+            `;
+        });
+        
+        // Disable input if no child context
+        const input = document.getElementById("chat-input");
