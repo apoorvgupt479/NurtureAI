@@ -407,3 +407,49 @@ for case in CHATBOT_CASES:
 
 coverage_results["chatbot"] = chatbot_hit
 
+
+# ===========================================================
+# FINAL SUMMARY
+# ===========================================================
+section("FINAL OUTPUT COVERAGE SUMMARY")
+
+ALL_EXPECTED = {
+    "celiac":         {0: "Negative", 1: "Positive"},
+    "behaviour":      {c: c for c in BEHAVIOUR_CLASSES},
+    "child_mortality":{0: "Low risk", 1: "High risk"},
+    "nurture":        {k: v for k, v in RISK_LABELS.items()},
+}
+
+total_classes = 0
+covered       = 0
+
+for module, expected_map in ALL_EXPECTED.items():
+    hit_map = coverage_results[module]
+    for cls, label in expected_map.items():
+        total_classes += 1
+        found = hit_map.get(cls, False)
+        covered += int(found)
+        print(f"  {PASS if found else FAIL}  [{module}]  class={cls} ({label})")
+
+print()
+for label, ok_val in coverage_results["chatbot"].items():
+    total_classes += 1
+    covered += int(ok_val)
+    print(f"  {PASS if ok_val else FAIL}  [chatbot]  {label}")
+
+print(f"\n  Classes covered: {covered}/{total_classes}")
+
+missing_classes = []
+for module, expected_map in ALL_EXPECTED.items():
+    for cls in expected_map:
+        if not coverage_results[module].get(cls, False):
+            missing_classes.append((module, cls))
+
+if not missing_classes:
+    print("  All output classes verified!\n")
+else:
+    print(f"\n  MISSING classes (model did not produce them with test inputs):")
+    for mod, cls in missing_classes:
+        print(f"    - [{mod}] class {cls}")
+    print()
+    sys.exit(1)
