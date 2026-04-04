@@ -196,3 +196,28 @@ def api_celiac():
     if not data:
         return jsonify({"status": 400, "error": "No data provided"}), 400
 
+    if "celiac" not in _modules or not _model_status.get("celiac", {}).get("loaded"):
+        _load_single_model("celiac")
+        if not _model_status.get("celiac", {}).get("loaded"):
+            return jsonify({"status": 503, "error": "Celiac model not available"}), 503
+
+    result = _modules["celiac"].predict(data)
+    return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# API: Chatbot
+# ---------------------------------------------------------------------------
+@app.route("/api/chatbot", methods=["POST"])
+def api_chatbot():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": "error", "code": 400, "message": "No data provided"}), 400
+
+    if "chatbot" not in _modules or not _model_status.get("chatbot", {}).get("loaded"):
+        _load_single_model("chatbot")
+        if not _model_status.get("chatbot", {}).get("loaded"):
+            return jsonify({
+                "status": "error",
+                "code": 503,
+                "message": "Chatbot model not available. It may still be loading — please try again in a moment."
