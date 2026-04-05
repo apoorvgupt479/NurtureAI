@@ -839,3 +839,97 @@ const App = {
         
         // Disable input if no child context
         const input = document.getElementById("chat-input");
+        const sendBtn = document.querySelector(".chat-send");
+        if (this.state.children.length > 1 && !this.state.chatContextChildId) {
+            input.disabled = true;
+            input.placeholder = "Select a child above first...";
+            sendBtn.disabled = true;
+        } else {
+            input.disabled = false;
+            input.placeholder = "Ask about your child's health...";
+            sendBtn.disabled = false;
+        }
+
+        container.scrollTop = container.scrollHeight;
+    },
+
+    async sendChat() {
+        const input = document.getElementById("chat-input");
+        const query = input.value.trim();
+        if (!query) return;
+        
+        if (this.state.children.length > 1 && !this.state.chatContextChildId) {
+            return; // Must select child first
+        }
+
+        input.value = "";
+        
+        // Add user msg
+        this.state.chatHistory.push({role: "user", text: query});
+        this.renderMessages();
+        this.save();
+
+        // Add loading indicator
+        const container = document.getElementById("chat-messages");
+        container.innerHTML += `
+            <div class="chat-msg ai loading-msg" id="chat-loading">
+                <div class="chat-bubble">Thinking... <div class="loader-spinner" style="width:16px;height:16px;display:inline-block;margin-bottom:-3px;border-width:2px"></div></div>
+            </div>
+        `;
+        container.scrollTop = container.scrollHeight;
+
+        // Prepare context based on chatContextChildId
+        let childInfo = {};
+        const activeChildId = this.state.chatContextChildId || (this.state.children.length === 1 ? this.state.children[0].id : null);
+        
+        if (activeChildId) {
+            const child = this.state.children.find(c => c.id === activeChildId);
+            if (child) childInfo = child; // pass the entire child object with all assessment fields
+        }
+
+        const payload = {
+            query: query,
+            child_info: childInfo,
+            parent_info: this.state.parent || {}, // pass the entire parent object with all form fields
+            chat_history: this.state.chatHistory.map(m => m.role === 'user' ? {"user": m.text} : {"assistant": m.text}),
+            n_results: 3
+        };
+
+        try {
+            const res = await fetch(API + "/api/chatbot", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            
+            document.getElementById("chat-loading")?.remove();
+
+            if (result.code === 200) {
+                let msgText = result.message;
+                if (result.isSerious) {
+                    msgText = "⚠️ **Important:** " + msgText;
+                }
+                if (result.shouldCallEmergency) {
+                    msgText += "\n\n🚨 **PLEASE SEEK IMMEDIATE MEDICAL ATTENTION.**";
+                }
+                
+                // Convert simple markdown-like syntax to HTML for display
+                msgText = msgText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+
+                this.state.chatHistory.push({role: "ai", text: msgText});
+            } else {
+                this.state.chatHistory.push({role: "ai", text: "Sorry, I encountered an error: " + (result.message || "Unknown error")});
+            }
+        } catch(e) {
+            document.getElementById("chat-loading")?.remove();
+            this.state.chatHistory.push({role: "ai", text: "Network error. Please try again."});
+        }
+        
+        this.save();
+        this.renderMessages();
+    }
+};
+
+// ---- Boot ----
+document.addEventListener("DOMContentLoaded", () => App.init());
