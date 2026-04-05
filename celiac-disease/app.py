@@ -64,3 +64,25 @@ The model requires the following clinical features for accurate prediction:
 12. IgM
     - Meaning: Immunoglobulin M level (serological marker).
     - Data Type: float
+    - Valid Range: 0.0 to 5.0
+
+=============================================================================
+"""
+import streamlit as st
+import celiac_model
+import pandas as pd
+import json
+
+# --- Page Configuration ---
+st.set_page_config(
+    page_title="Celiac Predictive AI",
+    page_icon="🔬",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# --- Custom CSS for Premium Look ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+    
