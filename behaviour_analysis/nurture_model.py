@@ -250,3 +250,39 @@ def predict(input_data):
             }
 
             # --- Generate Recommendations ---
+            if mental_stress > 0.5:
+                recommendations.append("HIGH Mental Stress: Consider professional counseling. Practice daily mindfulness.")
+                if depression_flag:
+                    recommendations.append("Depression detected: Ensure treatment compliance. Consider parent support groups.")
+            elif mental_stress > 0.25:
+                recommendations.append("Moderate Mental Stress: Try journaling, regular breaks, and social connection.")
+
+            if inp["Sleep_Hours"] < 6:
+                recommendations.append("Critical Sleep Deficit: Aim for 7-8 hours. #1 predictor of parenting patience.")
+            elif inp["Sleep_Hours"] < 7 or inp["Sleep_Hours"] > 9:
+                recommendations.append("Sleep Optimization: Aim for 7-8 hours. Set a consistent bedtime routine.")
+
+            if no_exercise:
+                recommendations.append("No Exercise: Start with 15-min walks with your child. Active parents raise active kids.")
+            if smoking:
+                recommendations.append("Smoking History: Second-hand smoke harms children. Consider a cessation program.")
+            if alcohol_risk > 0.5:
+                recommendations.append("High Alcohol Consumption: Reducing intake improves sleep and emotional availability.")
+            if bmi > 30:
+                recommendations.append("BMI indicates obesity risk: Try family meals with more fruits/vegetables.")
+            elif bmi > 25:
+                recommendations.append("BMI slightly elevated: Small dietary changes and 30 min daily activity help.")
+            if inp["Physical_Health_Days"] > 15:
+                recommendations.append("Frequent Illness: Prioritize your health plan. A healthy caregiver is the foundation.")
+            if inp["Income_Level"] <= 3:
+                recommendations.append("Financial Stress: Focus on free activities (reading, outdoor play, household games).")
+
+            if not recommendations:
+                recommendations.append("You are in great shape as a caregiver. Keep up the excellent work!")
+
+        # --- Build response ---
+        result = {
+            "status": 200,
+            "prediction": predicted_label,
+            "confidence": confidence,
+        }
