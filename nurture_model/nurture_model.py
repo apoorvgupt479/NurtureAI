@@ -198,3 +198,43 @@ def predict(input_data: dict) -> dict:
         # ── Step C: Pull out the saved model components ───────────────────
         model         = _model_bundle["model"]          # The trained RandomForest
         feature_names = _model_bundle["feature_names"]  # List of feature names in correct order
+        raw_medians   = _model_bundle["raw_medians"]    # Median value of each raw feature from training
+        raw_feat_cols = _model_bundle["raw_feat_cols"]  # Names of the original (non-engineered) features
+
+        # ── Step D: Add the 5 engineered features from the raw input ──────
+        # These are computed the same way as during training (see notebook Step 4).
+
+        # 1. BMI_Category — clinical weight group
+        #    0=Underweight (<18.5), 1=Normal (18.5–25), 2=Overweight (25–30), 3=Obese (>30)
+        bmi = input_data.get("Physical-BMI", 22)
+        if   bmi < 18.5: bmi_cat = 0
+        elif bmi < 25:   bmi_cat = 1
+        elif bmi < 30:   bmi_cat = 2
+        else:            bmi_cat = 3
+        input_data["BMI_Category"] = float(bmi_cat)
+
+        # 2. Age_Group — developmental stage category
+        #    0=Child (5–11), 1=Early Teen (12–14), 2=Teen (15–17), 3=Young Adult (18+)
+        age = input_data.get("Basic_Demos-Age", 12)
+        if   age <= 11: age_grp = 0
+        elif age <= 14: age_grp = 1
+        elif age <= 17: age_grp = 2
+        else:           age_grp = 3
+        input_data["Age_Group"] = float(age_grp)
+
+        # 3. Pulse_Pressure — difference between systolic and diastolic BP
+        #    Higher values can indicate cardiovascular strain
+        sbp = input_data.get("Physical-Systolic_BP", 115)
+        dbp = input_data.get("Physical-Diastolic_BP", 70)
+        input_data["Pulse_Pressure"] = float(sbp - dbp)
+
+        # 4. Body_Comp_Index — ratio of fat to fat-free mass
+        #    Higher means more fat relative to muscle
+        fat = input_data.get("BIA-BIA_Fat", 20)
+        ffm = input_data.get("BIA-BIA_FFM", 40)
+        input_data["Body_Comp_Index"] = float(fat / (ffm + 1e-5))   # +1e-5 avoids division by zero
+
+        # 5. Behavior_Score — composite lifestyle health score (0–100)
+        input_data["Behavior_Score"] = _compute_behavior_score(input_data)
+
+        # ── Step E: Build a single-row DataFrame with features in the RIGHT order ──
