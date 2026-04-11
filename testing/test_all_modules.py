@@ -228,3 +228,37 @@ try:
         # No API key — should return 400
         r1 = chatbot.predict({"query": "What is fever?", "google_api_key": ""})
         check("predict() missing API key -> code 400", r1.get("code") == 400, str(r1))
+
+        # Missing query
+        r2 = chatbot.predict({"query": "", "google_api_key": "dummy"})
+        check("predict() empty query -> code 400", r2.get("code") == 400, str(r2))
+
+        # No query key at all
+        r3 = chatbot.predict({"google_api_key": "dummy"})
+        check("predict() no query key -> code 400", r3.get("code") == 400, str(r3))
+
+        results["chatbot_predict"] = True
+        print(f"  {INFO} Skipping live Gemini API call (requires valid key + network).")
+except Exception as e:
+    print(f"  {FAIL} Module crashed: {e}")
+    traceback.print_exc()
+    results["chatbot_load"] = False
+    results["chatbot_predict"] = False
+
+
+# ─────────────────────────────────────────────────────────────
+# 6. APP.PY INTEGRATION CHECKS
+# ─────────────────────────────────────────────────────────────
+section("6. APP.PY INTEGRATION CHECKS")
+
+# Check all PKL files exist
+pkl_paths = {
+    "behaviour":      os.path.join(BASE_DIR, "behaviour_analysis", "nurture_model.pkl"),
+    "child_mortality": os.path.join(BASE_DIR, "child_mortality",   "model.pkl"),
+    "nurture":        os.path.join(BASE_DIR, "nurture_model",      "nurture_model.pkl"),
+    "celiac":         os.path.join(BASE_DIR, "celiac-disease",     "celiac_model.pkl"),
+    "chatbot":        os.path.join(BASE_DIR, "chatbot",            "chroma_full_state.pkl"),
+}
+for name, path in pkl_paths.items():
+    check(f"PKL exists: {name}", os.path.exists(path), path)
+
