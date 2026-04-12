@@ -314,3 +314,82 @@
 <!-- ============================================================ -->
 <!-- SCREEN: Infant Assessment (< 1 year)                          -->
 <!-- ============================================================ -->
+<section id="screen-infant-form" class="screen">
+    <div class="screen-content">
+        <button class="btn-back" onclick="App.showScreen('screen-dashboard')">← Back</button>
+        <div class="step-indicator" id="infant-steps">
+            <span class="step active" data-step="1">1</span>
+            <span class="step-line"></span>
+            <span class="step" data-step="2">2</span>
+            <span class="step-line"></span>
+            <span class="step" data-step="3">3</span>
+        </div>
+
+        <!-- Step 1: Family & Birth -->
+        <div class="wizard-step active" id="infant-step-1">
+            <div class="card">
+                <div class="card-icon">🏥</div>
+                <h2 id="infant-title-1">Birth & Family</h2>
+                <p class="helper">These details help assess early health risks.</p>
+
+                <div class="form-group">
+                    <label>Was this a twin birth?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="inf-twin" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn active" data-field="inf-twin" data-value="0" onclick="App.toggleSelect(this)">No</button>
+                    </div><input type="hidden" id="inf-twin" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Was delivery in a private hospital?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="inf-private" data-value="1" onclick="App.toggleSelect(this)">Private</button>
+                        <button class="toggle-btn active" data-field="inf-private" data-value="0" onclick="App.toggleSelect(this)">Government/Other</button>
+                    </div><input type="hidden" id="inf-private" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Was ultrasound done during pregnancy?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-field="inf-ultrasound" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn" data-field="inf-ultrasound" data-value="0" onclick="App.toggleSelect(this)">No</button>
+                    </div><input type="hidden" id="inf-ultrasound" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Does your home have a toilet facility?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-field="inf-toilet" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn" data-field="inf-toilet" data-value="0" onclick="App.toggleSelect(this)">No</button>
+                    </div><input type="hidden" id="inf-toilet" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="inf-height">Mother's height (cm)</label>
+                    <p class="helper-sm">Mother's height is a health indicator for the child.</p>
+                    <input type="number" id="inf-height" value="155" min="100" max="200" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="inf-children">Total children born</label>
+                    <div class="stepper">
+                        <button class="stepper-btn" onclick="App.adjustStepper('inf-children',-1)">−</button>
+                        <input type="number" id="inf-children" value="1" min="0" max="20">
+                        <button class="stepper-btn" onclick="App.adjustStepper('inf-children',1)">+</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inf-under5">Children under age 5 in household</label>
+                    <div class="stepper">
+                        <button class="stepper-btn" onclick="App.adjustStepper('inf-under5',-1)">−</button>
+                        <input type="number" id="inf-under5" value="1" min="0" max="20">
+                        <button class="stepper-btn" onclick="App.adjustStepper('inf-under5',1)">+</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="inf-sons-died">Sons who died</label>
+                        <input type="number" id="inf-sons-died" value="0" min="0" max="20">
+                    </div>
+                    <div class="form-group half">
+                        <label for="inf-daughters-died">Daughters who died</label>
+                        <input type="number" id="inf-daughters-died" value="0" min="0" max="20">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Are you currently pregnant?</label>
