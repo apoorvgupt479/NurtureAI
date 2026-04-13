@@ -221,3 +221,28 @@ def api_chatbot():
                 "status": "error",
                 "code": 503,
                 "message": "Chatbot model not available. It may still be loading — please try again in a moment."
+            }), 503
+
+    # Inject the server-side API key if client didn't provide one
+    if not data.get("google_api_key"):
+        data["google_api_key"] = _settings.get("gemini_api_key", "")
+
+    result = _modules["chatbot"].predict(data)
+    return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# Pre-load Models
+# ---------------------------------------------------------------------------
+# Start loading all models in the background immediately when the module loads
+_load_all_models_background()
+
+# ---------------------------------------------------------------------------
+# Run
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    print("\n[NurtureAI] Server starting...")
+    print(f"   Frontend: {FRONTEND_DIR}")
+    print(f"   Models:   {list(MODEL_REGISTRY.keys())}")
+    print(f"   URL:      http://localhost:5000 (and http://<your-local-ip>:5000)\n")
+    app.run(host="0.0.0.0", debug=True, port=5000)
