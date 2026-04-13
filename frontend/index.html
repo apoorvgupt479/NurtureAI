@@ -393,3 +393,82 @@
                 </div>
                 <div class="form-group">
                     <label>Are you currently pregnant?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="inf-pregnant" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn active" data-field="inf-pregnant" data-value="0" onclick="App.toggleSelect(this)">No</button>
+                    </div><input type="hidden" id="inf-pregnant" value="0">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="App.infantStep(2)">Next →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Vaccination & Nutrition -->
+        <div class="wizard-step" id="infant-step-2">
+            <div class="card">
+                <div class="card-icon">💉</div>
+                <h2>Vaccination & Nutrition</h2>
+                <p class="helper">Check all that apply to your child.</p>
+
+                <div class="checklist">
+                    <label class="check-item"><input type="checkbox" id="inf-hepb" checked><span>Hepatitis B vaccine at birth</span></label>
+                    <label class="check-item"><input type="checkbox" id="inf-mmr" checked><span>MMR vaccine given</span></label>
+                    <label class="check-item"><input type="checkbox" id="inf-dpt" checked><span>DPT vaccination completed</span></label>
+                    <label class="check-item"><input type="checkbox" id="inf-measles" checked><span>Measles dose completed</span></label>
+                    <label class="check-item"><input type="checkbox" id="inf-vita"><span>Vitamin A supplement given</span></label>
+                    <label class="check-item"><input type="checkbox" id="inf-iron"><span>Iron pills/supplement given</span></label>
+                    <label class="check-item"><input type="checkbox" id="inf-deworm"><span>Deworming drug given</span></label>
+                    <label class="check-item"><input type="checkbox" id="inf-fruitjuice"><span>Fruit juice given in first 3 days</span></label>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="form-group">
+                    <label>Is the child currently breastfed?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-field="inf-breastfeed" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn" data-field="inf-breastfeed" data-value="0" onclick="App.toggleSelect(this)">No</button>
+                    </div><input type="hidden" id="inf-breastfeed" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Is the child fed with a bottle?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="inf-bottle" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn active" data-field="inf-bottle" data-value="0" onclick="App.toggleSelect(this)">No</button>
+                    </div><input type="hidden" id="inf-bottle" value="0">
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" onclick="App.infantStep(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="App.infantStep(3)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Current Symptoms & Location -->
+        <div class="wizard-step" id="infant-step-3">
+            <div class="card">
+                <div class="card-icon">🩺</div>
+                <h2>Symptoms & Location</h2>
+
+                <div class="form-group">
+                    <label>Does the child have shortness of breath?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="inf-breath" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn active" data-field="inf-breath" data-value="0" onclick="App.toggleSelect(this)">No</button>
+                    </div><input type="hidden" id="inf-breath" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Do you have health insurance?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-field="inf-insurance" data-value="1" onclick="App.toggleSelect(this)">Yes</button>
+                        <button class="toggle-btn" data-field="inf-insurance" data-value="0" onclick="App.toggleSelect(this)">No</button>
+                    </div><input type="hidden" id="inf-insurance" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Is the water source "Other" (non-standard)?</label>
+                    <p class="helper-sm">Non-piped, non-well water sources.</p>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="inf-water" data-value="1" onclick="App.toggleSelect(this)">Yes (Other)</button>
+                        <button class="toggle-btn active" data-field="inf-water" data-value="0" onclick="App.toggleSelect(this)">No (Standard)</button>
+                    </div><input type="hidden" id="inf-water" value="0">
+                </div>
