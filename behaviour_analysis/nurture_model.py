@@ -286,3 +286,39 @@ def predict(input_data):
             "prediction": predicted_label,
             "confidence": confidence,
         }
+
+        if risk_scores:
+            result["risk_scores"] = risk_scores
+            result["cluster_comparison"] = cluster_profiles
+            result["recommendations"] = recommendations
+
+        return result
+
+    except Exception as e:
+        return {"status": 500, "error": f"Prediction failed: {str(e)}"}
+
+
+# ============================================================
+# Quick test (only runs when script is executed directly)
+# ============================================================
+if __name__ == "__main__":
+    import json
+
+    # Load model
+    print("Loading model...")
+    load_result = load()
+    print(json.dumps(load_result, indent=2))
+
+    if load_result["status"] != 200:
+        exit(1)
+
+    # Test prediction with all features
+    print("\n" + "=" * 60)
+    print("Test: Full prediction with extended features")
+    print("=" * 60)
+
+    test_input = {
+        "General_Health": 3,
+        "Sleep_Hours": 7,
+        "Exercise_Any": 1,
+        "Smoked_100_Cigs": 2,
