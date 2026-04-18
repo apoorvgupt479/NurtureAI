@@ -238,3 +238,43 @@ def predict(input_data: dict) -> dict:
         input_data["Behavior_Score"] = _compute_behavior_score(input_data)
 
         # ── Step E: Build a single-row DataFrame with features in the RIGHT order ──
+        # The model was trained with features in a specific column order.
+        # We MUST preserve that order — wrong order = garbage predictions!
+        # .reindex() puts columns in the right order; fill_value=0 handles missing features.
+        X = pd.DataFrame([input_data]).reindex(columns=feature_names, fill_value=np.nan)
+
+        # ── Step F: Fill in any missing (NaN) values using the training medians ──
+        # Some features like BIA or fitness might not always be available.
+        # For each raw feature that is missing, we fill in the median value
+        # that was seen during training. This is exactly what the model expects.
+        for col in raw_feat_cols:
+            if col in X.columns and X[col].isna().any():
+                X[col] = X[col].fillna(raw_medians.get(col, 0))
+        X_df = X.fillna(0)   # Safety net: fill any remaining NaN with 0
+
+        # ── Step G: Run the model ─────────────────────────────────────────
+        prediction = int(model.predict(X_df)[0])   # Single prediction: 0, 1, 2, or 3
+
+        # Get probability for each class (how confident the model is)
+        probabilities = {}
+        if hasattr(model, "predict_proba"):
+            proba_array = model.predict_proba(X_df)[0]   # Array of 4 probabilities
+            class_labels = {0: "None (Healthy)", 1: "Mild", 2: "Moderate", 3: "Severe"}
+            for i, prob in enumerate(proba_array):
+                probabilities[f"sii={i} ({class_labels[i]})"] = round(float(prob), 4)
+
+        # ── Step H: Build the final result dictionary ─────────────────────
+        risk_labels = {0: "None (Healthy)", 1: "Mild Risk", 2: "Moderate Risk", 3: "Severe Risk"}
+        behavior_score = _compute_behavior_score(input_data)
+
+        return {
+            "status": "ok",
+            "code": 200,
+            "prediction": {
+                "sii": prediction,                          # 0, 1, 2, or 3
+                "risk_label": risk_labels[prediction],      # Human-readable label
+                "behavior_score": behavior_score,           # 0–100 lifestyle score
+                "probabilities": probabilities              # Confidence per class
+            }
+        }
+
