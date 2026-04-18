@@ -131,3 +131,25 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
+# --- Initialize Model ---
+@st.cache_resource
+def load_celiac_model():
+    res = celiac_model.load()
+    return res
+
+load_status = load_celiac_model()
+
+# --- Header ---
+st.title("🔬 Celiac Disease Prediction System")
+st.markdown("Enter patient clinical data below to analyze the likelihood of Celiac disease using our AI model.")
+
+# --- Sidebar Inputs ---
+with st.sidebar:
+    st.header("Patient Data")
+    
+    age = st.number_input("Age", min_value=1, max_value=100, value=25)
+    gender = st.selectbox("Gender", ["Male", "Female"])
+    
+    st.divider()
+    
