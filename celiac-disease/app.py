@@ -109,3 +109,25 @@ st.markdown("""
         background-color: #357ABD;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .prediction-card {
+        padding: 2rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .positive { color: #D0021B; font-weight: 700; font-size: 2rem; }
+    .negative { color: #417505; font-weight: 700; font-size: 2rem; }
+    
+    .sidebar .sidebar-content {
+        background-color: #2c3e50;
+        color: white;
+    }
+    </style>
+""", unsafe_allow_html=True)
