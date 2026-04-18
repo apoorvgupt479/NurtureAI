@@ -322,3 +322,40 @@ if __name__ == "__main__":
         "Sleep_Hours": 7,
         "Exercise_Any": 1,
         "Smoked_100_Cigs": 2,
+        "Income_Level": 6,
+        "Marital_Status": 1,
+        "Physical_Health_Days": 2,
+        "Mental_Health_Days": 3,
+        "Depression_Diagnosis": 2,
+        "BMI_Indicator": 24.5,
+        "Alcohol_Days_Monthly": 4,
+    }
+
+    result = predict(test_input)
+    print(json.dumps(result, indent=2))
+
+    # Test with only required features
+    print("\n" + "=" * 60)
+    print("Test: Minimal prediction (6 required features only)")
+    print("=" * 60)
+
+    minimal_input = {
+        "General_Health": 4,
+        "Sleep_Hours": 5,
+        "Exercise_Any": 2,
+        "Smoked_100_Cigs": 1,
+        "Income_Level": 2,
+        "Marital_Status": 5,
+    }
+
+    result2 = predict(minimal_input)
+    print(json.dumps(result2, indent=2))
+
+    # Test error handling
+    print("\n" + "=" * 60)
+    print("Test: Missing features (should return 400)")
+    print("=" * 60)
+
+    bad_input = {"General_Health": 3, "Sleep_Hours": 7}
+    result3 = predict(bad_input)
+    print(json.dumps(result3, indent=2))
