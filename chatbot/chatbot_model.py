@@ -255,3 +255,46 @@ def predict(input_data: dict) -> dict:
         return {
             "status": "error",
             "code": 400,
+            "message": "Missing 'google_api_key' in input_data or GOOGLE_API_KEY environment variable.",
+            "isSerious": False,
+            "shouldCallEmergency": False
+        }
+
+    # ---- Extract optional inputs ----
+    child_info   = input_data.get("child_info",   {})
+    parent_info  = input_data.get("parent_info",  {})
+    chat_history = input_data.get("chat_history", [])
+    n_results    = int(input_data.get("n_results", 3))
+
+    def _sanitize(info):
+        if not isinstance(info, dict): return info
+        sanitized = info.copy()
+        if "assessment" in sanitized and isinstance(sanitized["assessment"], dict):
+            if "cluster_comparison" in sanitized["assessment"]:
+                del sanitized["assessment"]["cluster_comparison"]
+        if "lastResult" in sanitized and isinstance(sanitized["lastResult"], dict):
+            if "cluster_comparison" in sanitized["lastResult"]:
+                del sanitized["lastResult"]["cluster_comparison"]
+        return sanitized
+
+    child_info_clean = _sanitize(child_info)
+    parent_info_clean = _sanitize(parent_info)
+
+    try:
+        # ----------------------------------------------------------------
+        # Step 1: RAG — Query ChromaDB for top relevant documents
+        # ----------------------------------------------------------------
+        query_results = _chroma_collection.query(
+            query_texts=[query],
+            n_results=n_results
+        )
+
+        top_docs  = query_results["documents"][0] if query_results["documents"] else []
+        top_metas = query_results["metadatas"][0] if query_results["metadatas"] else []
+
+        # Build RAG context for prompt
+        rag_context = []
+        for doc, meta in zip(top_docs, top_metas):
+            source = meta.get("source", "Unknown")
+            rag_context.append({"source": source, "content": doc})
+
