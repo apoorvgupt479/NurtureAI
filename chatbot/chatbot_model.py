@@ -298,3 +298,46 @@ def predict(input_data: dict) -> dict:
             source = meta.get("source", "Unknown")
             rag_context.append({"source": source, "content": doc})
 
+        # ----------------------------------------------------------------
+        # Step 2: Generate response using Google Gemini
+        # ----------------------------------------------------------------
+        try:
+            from google import genai
+        except ImportError:
+            return {
+                "status": "error",
+                "code": 500,
+                "message": "google-genai is not installed. Run: pip install google-genai",
+                "isSerious": False,
+                "shouldCallEmergency": False
+            }
+
+        client = genai.Client(api_key=api_key)
+
+        system_instruction = """
+You are a professional medical first responder.
+Analyze the provided information about a child and parent.
+Use the provided medical research documents (RAG) to inform your response.
+
+GUIDELINES:
+1. In simple cases: give helpful suggestions.
+2. Emergency: advise doctor immediately, set isSerious + shouldCallEmergency = true.
+3. Suspicious: suggest doctor, set isSerious = true.
+4. Use chat history.
+5. Output ONLY JSON.
+"""
+
+        user_prompt = f"""
+INPUT DATA:
+- Current Question: {json.dumps(query)}
+- Child Info: {json.dumps(child_info_clean)}
+- Parent Info: {json.dumps(parent_info_clean)}
+- Reference Docs (RAG): {json.dumps(rag_context)}
+- Chat History: {json.dumps(chat_history)}
+
+OUTPUT JSON:
+{{
+    "status": "success/error",
+    "code": 200,
+    "message": "...",
+    "isSerious": true/false,
