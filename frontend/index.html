@@ -551,3 +551,82 @@
                         <label for="ch-dbp">Diastolic BP</label>
                         <input type="number" id="ch-dbp" placeholder="mmHg">
                     </div>
+                </div>
+
+                <button class="btn btn-primary btn-block" onclick="App.childStep(2)">Next →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Sleep & Activity -->
+        <div class="wizard-step" id="child-step-2">
+            <div class="card">
+                <div class="card-icon">🏃</div>
+                <h2>Sleep & Activity</h2>
+                <p class="helper">These are key indicators of mental and physical wellbeing.</p>
+
+                <div class="form-group">
+                    <label for="ch-sds">Sleep Disturbance Score (SDS)</label>
+                    <p class="helper-sm">Scale 20–80. Lower = better sleep. Leave blank if unsure.</p>
+                    <input type="number" id="ch-sds" placeholder="e.g. 45" min="20" max="80">
+                </div>
+                <div class="form-group">
+                    <label for="ch-paq">Physical Activity Score</label>
+                    <p class="helper-sm">Scale 1.0–4.0. Higher = more active child.</p>
+                    <input type="number" id="ch-paq" placeholder="e.g. 2.5" min="1" max="4" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="ch-fit-stage">Fitness Endurance — Max Stage</label>
+                    <p class="helper-sm">From any fitness test (1–14). Leave blank if unsure.</p>
+                    <input type="number" id="ch-fit-stage" placeholder="Optional" min="1" max="14">
+                </div>
+                <div class="form-group">
+                    <label for="ch-fit-time">Fitness Endurance — Time (minutes)</label>
+                    <input type="number" id="ch-fit-time" placeholder="Optional" min="1" max="60">
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" onclick="App.childStep(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="App.childStep(3)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Body Composition -->
+        <div class="wizard-step" id="child-step-3">
+            <div class="card">
+                <div class="card-icon">🔬</div>
+                <h2>Body Composition (Optional)</h2>
+                <p class="helper">If you have BIA (body composition) data, enter it here. Otherwise skip.</p>
+
+                <div class="form-row">
+                    <div class="form-group third">
+                        <label for="ch-fat">Body Fat %</label>
+                        <input type="number" id="ch-fat" placeholder="%" step="0.1">
+                    </div>
+                    <div class="form-group third">
+                        <label for="ch-ffm">Fat-Free Mass</label>
+                        <input type="number" id="ch-ffm" placeholder="kg" step="0.1">
+                    </div>
+                    <div class="form-group third">
+                        <label for="ch-smm">Muscle Mass</label>
+                        <input type="number" id="ch-smm" placeholder="kg" step="0.1">
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" onclick="App.childStep(2)">← Back</button>
+                    <button class="btn btn-primary btn-submit" onclick="App.submitChild()">Get Assessment ✓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SCREEN: Celiac Disease Screening                              -->
+<!-- ============================================================ -->
+<section id="screen-celiac-form" class="screen">
+    <div class="screen-content">
+        <button class="btn-back" onclick="App.showScreen('screen-dashboard')">← Back</button>
+        <div class="step-indicator" id="celiac-steps">
+            <span class="step active" data-step="1">1</span>
