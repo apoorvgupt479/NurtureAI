@@ -630,3 +630,82 @@
         <button class="btn-back" onclick="App.showScreen('screen-dashboard')">← Back</button>
         <div class="step-indicator" id="celiac-steps">
             <span class="step active" data-step="1">1</span>
+            <span class="step-line"></span>
+            <span class="step" data-step="2">2</span>
+            <span class="step-line"></span>
+            <span class="step" data-step="3">3</span>
+        </div>
+
+        <!-- Step 1: Demographics -->
+        <div class="wizard-step active" id="celiac-step-1">
+            <div class="card">
+                <div class="card-icon">🌾</div>
+                <h2 id="celiac-title">Celiac Disease Screening</h2>
+                <p class="helper">Answer a few questions to screen for celiac disease risk.</p>
+
+                <div class="form-group">
+                    <label>Does the child have diabetes?</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn" data-field="cel-diabetes" data-value="Yes" onclick="App.toggleSelect(this);App.showDiabetesType(true)">Yes</button>
+                        <button class="toggle-btn active" data-field="cel-diabetes" data-value="No" onclick="App.toggleSelect(this);App.showDiabetesType(false)">No</button>
+                    </div><input type="hidden" id="cel-diabetes" value="No">
+                </div>
+                <div class="form-group" id="cel-diabetes-type-group" style="display:none">
+                    <label for="cel-diabetes-type">Diabetes Type</label>
+                    <select id="cel-diabetes-type">
+                        <option value="Type 1">Type 1</option>
+                        <option value="Type 2">Type 2</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="App.celiacStep(2)">Next →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Symptoms -->
+        <div class="wizard-step" id="celiac-step-2">
+            <div class="card">
+                <div class="card-icon">🩺</div>
+                <h2>Symptoms</h2>
+                <p class="helper">Select any symptoms the child is experiencing.</p>
+
+                <div class="checklist">
+                    <label class="check-item"><input type="checkbox" id="cel-diarrhoea"><span>Chronic diarrhoea</span></label>
+                    <label class="check-item"><input type="checkbox" id="cel-abdominal"><span>Abdominal pain or discomfort</span></label>
+                    <label class="check-item"><input type="checkbox" id="cel-short-stature"><span>Short stature (below average height)</span></label>
+                    <label class="check-item"><input type="checkbox" id="cel-sticky-stool"><span>Sticky or greasy stools</span></label>
+                    <label class="check-item"><input type="checkbox" id="cel-weight-loss"><span>Unexplained weight loss</span></label>
+                </div>
+
+                <div class="btn-row" style="margin-top:16px">
+                    <button class="btn btn-ghost" onclick="App.celiacStep(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="App.celiacStep(3)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Lab Results -->
+        <div class="wizard-step" id="celiac-step-3">
+            <div class="card">
+                <div class="card-icon">🔬</div>
+                <h2>Lab Results</h2>
+                <p class="helper">Enter immunoglobulin levels if available. These are key markers for celiac disease.</p>
+
+                <div class="form-group">
+                    <label for="cel-iga">IgA Level (0.0 – 10.0)</label>
+                    <p class="helper-sm">Immunoglobulin A — primary celiac marker.</p>
+                    <input type="number" id="cel-iga" placeholder="e.g. 2.5" step="0.1" min="0" max="10">
+                </div>
+                <div class="form-group">
+                    <label for="cel-igg">IgG Level (0.0 – 25.0)</label>
+                    <p class="helper-sm">Immunoglobulin G — secondary marker.</p>
+                    <input type="number" id="cel-igg" placeholder="e.g. 8.0" step="0.1" min="0" max="25">
+                </div>
+                <div class="form-group">
+                    <label for="cel-igm">IgM Level (0.0 – 5.0)</label>
+                    <p class="helper-sm">Immunoglobulin M — supporting marker.</p>
+                    <input type="number" id="cel-igm" placeholder="e.g. 1.2" step="0.1" min="0" max="5">
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-ghost" onclick="App.celiacStep(2)">← Back</button>
+                    <button class="btn btn-primary btn-submit" onclick="App.submitCeliac()">Get Screening Result ✓</button>
