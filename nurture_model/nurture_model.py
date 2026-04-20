@@ -278,3 +278,43 @@ def predict(input_data: dict) -> dict:
             }
         }
 
+    except Exception as e:
+        # Catch any unexpected error during prediction
+        return {
+            "status": "error",
+            "message": f"Prediction failed: {str(e)}",
+            "code": 500
+        }
+
+
+# =============================================================================
+#  DEMO — runs only when you execute this file directly (python nurture_model.py)
+#  This is NOT executed when you import the file into another script.
+# =============================================================================
+if __name__ == "__main__":
+
+    print("=" * 65)
+    print("  NurtureAI — Demo Run")
+    print("=" * 65)
+
+    # ── Step 1: Load the model ─────────────────────────────────────
+    print("\n📦 Loading model...")
+    load_response = load()
+    print(f"   Response: {load_response}")
+
+    if load_response["code"] != 200:
+        print("❌ Could not load model. Exiting.")
+        exit(1)
+
+    # ── Step 2: Define 3 sample children ──────────────────────────
+    # Each dictionary represents one child's health metrics.
+    test_cases = [
+        {
+            "name": "Child A — Healthy Profile",
+            "data": {
+                "Basic_Demos-Age": 10,                    # 10 years old
+                "Basic_Demos-Sex": 0,                     # Female
+                "Physical-BMI": 18.5,                     # Normal weight
+                "Physical-Height": 140,                   # 140 cm
+                "Physical-Weight": 36,                    # 36 kg
+                "Physical-Waist_Circumference": 60,
