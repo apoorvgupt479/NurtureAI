@@ -318,3 +318,43 @@ if __name__ == "__main__":
                 "Physical-Height": 140,                   # 140 cm
                 "Physical-Weight": 36,                    # 36 kg
                 "Physical-Waist_Circumference": 60,
+                "Physical-Diastolic_BP": 65,
+                "Physical-Systolic_BP": 105,
+                "Physical-HeartRate": 70,
+                "SDS-SDS_Total_T": 36,                    # Low sleep disturbance = good sleep
+                "PAQ_A-PAQ_A_Total": 3.6,                 # Very active
+                "Fitness_Endurance-Max_Stage": 12,
+                "Fitness_Endurance-Time_Mins": 45,
+                "BIA-BIA_Fat": 14,
+                "BIA-BIA_FFM": 31,
+                "BIA-BIA_SMM": 23
+            }
+        },
+        {
+            "name": "Child B — Moderate Risk Profile",
+            "data": {
+                "Basic_Demos-Age": 15,                    # 15 years old
+                "Basic_Demos-Sex": 1,                     # Male
+                "Physical-BMI": 27,                       # Slightly overweight
+                "Physical-Height": 165,
+                "Physical-Weight": 73,
+                "Physical-Waist_Circumference": 85,
+                "Physical-Diastolic_BP": 78,
+                "Physical-Systolic_BP": 126,
+                "Physical-HeartRate": 88,
+                "SDS-SDS_Total_T": 63,                    # Moderate sleep issues
+                "PAQ_A-PAQ_A_Total": 1.7,                 # Low activity
+                "Fitness_Endurance-Max_Stage": 4,
+                "Fitness_Endurance-Time_Mins": 11,
+                "BIA-BIA_Fat": 29,
+                "BIA-BIA_FFM": 44,
+                "BIA-BIA_SMM": 33
+            }
+        },
+        {
+            "name": "Child C — High Risk Profile",
+            "data": {
+                "Basic_Demos-Age": 17,                    # 17 years old
+                "Basic_Demos-Sex": 1,                     # Male
+                "Physical-BMI": 33,                       # Obese
+                "Physical-Height": 170,
