@@ -153,3 +153,25 @@ with st.sidebar:
     
     st.divider()
     
+    diabetes = st.selectbox("Diabetes", ["No", "Yes"])
+    diabetes_type = st.selectbox("Diabetes Type", ["Unknown", "Type 1", "Type 2"])
+    
+    st.divider()
+    
+    diarrhoea = st.radio("Diarrhoea", ["No", "Yes"], horizontal=True)
+    abdominal = st.radio("Abdominal Pain", ["No", "Yes"], horizontal=True)
+    short_stature = st.radio("Short Stature", ["No", "Yes"], horizontal=True)
+    sticky_stool = st.radio("Sticky Stool", ["No", "Yes"], horizontal=True)
+    weight_loss = st.radio("Unexpected Weight Loss", ["No", "Yes"], horizontal=True)
+
+    st.divider()
+    
+    st.markdown("### Serological Markers")
+    iga = st.slider("IgA Levels", 0.0, 10.0, 2.5)
+    igg = st.slider("IgG Levels", 0.0, 25.0, 12.0)
+    igm = st.slider("IgM Levels", 0.0, 5.0, 1.5)
+
+# --- Prediction Logic ---
+if st.button("🚀 Analyze Patient Profile"):
+    input_data = {
+        "Age": age,
