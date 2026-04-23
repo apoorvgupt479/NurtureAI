@@ -710,3 +710,122 @@ def create_input_for_prediction(user_data, original_feature_columns, model_expec
             if col_name in model_expected_columns:
                 input_df_template.loc[0, col_name] = 1
         elif key == 'Wealth_Idx_Lb':
+            # Map the string value from user_data to numerical and set
+            if key in model_expected_columns:
+                input_df_template.loc[0, key] = wealth_mapping.get(value, 2) # Default to Middle Class (2)
+        else:
+            # For direct features, simply assign the value if the column is expected by the model
+            if key in model_expected_columns:
+                input_df_template.loc[0, key] = value
+
+    # The input_df_template already has the correct columns and order,
+    # so it can be directly returned.
+    return input_df_template
+
+def generate_recommendations(user_data, top_features_df):
+    """Generates rule-based recommendations based on top features and user input.
+    Args:
+        user_data (dict): Dictionary of user inputs.
+        top_features_df (pd.DataFrame): DataFrame containing top features and their coefficients.
+    Returns:
+        str: A string of rule-based recommendations.
+    """
+    recommendations = []
+    for index, row in top_features_df.iterrows():
+        feature = row['Feature']
+
+        base_feature = feature
+        if feature.startswith('Religion_'):
+            base_feature = 'Religion'
+        elif feature.startswith('Ethnicity_'):
+            base_feature = 'Ethnicity'
+        elif feature.startswith('Water_Source_') and feature != 'Water_Source_Time':
+            base_feature = 'Water_Source'
+        elif feature.startswith('DeliveryPlace_'):
+            base_feature = 'DeliveryPlace'
+        elif feature.startswith('State_'):
+             base_feature = 'State'
+
+        if base_feature in user_data:
+            user_value = user_data[base_feature]
+            label = feature_labels.get(base_feature, base_feature.replace('_', ' '))
+
+            if base_feature in ['Religion', 'Ethnicity', 'Water_Source', 'DeliveryPlace']:
+                pass
+            elif user_value == 0:
+                if 'DPT' in label or 'MEASLES' in label or 'JE' in label or 'HepatitisB' in label or 'MMR' in label:
+                    recommendations.append(f"Ensure child receives full vaccination course for {label}. Vaccinations are crucial for protecting children from severe diseases.")
+                elif 'Breastfeed' in label or 'BrstFeed' in label:
+                    recommendations.append(f"Encourage exclusive breastfeeding for the first 6 months. It provides vital nutrients and antibodies for the baby's health.")
+                elif 'Toilet' in label or 'Water_Source' in label:
+                    recommendations.append(f"Improve sanitation and access to safe drinking water, as indicated by '{label}' not being optimal. Clean environments prevent many childhood illnesses.")
+                elif 'Preg' in label or 'Antenatal' in label or 'Postnatal' in label or 'Resp_healthChk' in label:
+                    recommendations.append(f"Prioritize maternal health check-ups (e.g., '{label}') during and after pregnancy. A healthy mother is key to a healthy child.")
+                elif 'House_' in label:
+                    recommendations.append(f"Consider improving household amenities like '{label}'. These can indirectly impact health and living conditions.")
+                elif 'Wealth_Idx_Lb' in base_feature:
+                    recommendations.append(f"Explore programs that can help improve economic stability and access to resources, as current wealth index is low.")
+                else:
+                    recommendations.append(f"Consider addressing factors related to '{label}' as they might contribute to health risks.")
+        elif feature.startswith('State_'):
+            pass
+
+    if not recommendations:
+        return "No specific rule-based recommendations found based on your input and top features. Keep up the good work!"
+
+    return "\n".join([f"- {rec}" for rec in recommendations])
+
+# --- CELL ---
+
+llm_available = False
+try:
+    GOOGLE_API_KEY = userdata.get('GOOGLE_API_KEY')
+    genai.configure(api_key=GOOGLE_API_KEY)
+    llm_model = genai.GenerativeModel('gemini-2.5-flash')
+    llm_available = True
+    print("Gemini API configured successfully.")
+except Exception as e:
+    print("Note: Gemini API key not found or configuration failed.")
+    print("Please add GOOGLE_API_KEY to Colab Secrets for LLM recommendations or check your API key.")
+    llm_available = False
+
+def get_llm_recommendations(user_data, rule_recs, prediction_status):
+    """Generates recommendations using google.generativeai.GenerativeModel."""
+    if not llm_available:
+        return "LLM recommendations are unavailable. Please check your API key."
+
+    prompt = f"""
+    You are a supportive maternal and child health advisor.
+    Based on the following data for a mother and child in India:
+    - Mother's Age: {user_data.get('Res_Age', 'N/A')}
+    - State: {user_data.get('State', 'N/A')}
+    - Prediction Status: {prediction_status}
+    - Technical Rule-Based Advice: {rule_recs}
+
+    The user has also answered the following details (1=Yes, 0=No):
+    { {k:v for k,v in user_data.items() if k not in ['Res_Age', 'State']} }
+
+    Please provide a warm, easy-to-understand, and personalized set of health recommendations.
+    Focus on encouragement and explain clearly why certain actions (like breastfeeding or vaccination) are vital based on their specific 'No' answers. Avoid technical jargon.
+    Keep it concise (around 8-10 lines).
+    """
+    try:
+        response = llm_model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Could not generate LLM response: {str(e)}"
+
+# --- CELL ---
+
+def on_button_click_enhanced(b):
+    with output_area:
+        output_area.clear_output()
+        current_widget_values = {name: widget.value for name, widget in input_widgets.items()}
+
+        input_df = create_input_for_prediction(current_widget_values, original_feature_columns, model_expected_columns)
+
+        prediction = selected_model.predict(input_df)[0]
+        probs = selected_model.predict_proba(input_df)[0]
+        status_label = "Healthy/Alive" if prediction == 1 else "At Risk"
+
+        status_html = f"<b style='color:green;'>{status_label}</b>" if prediction == 1 else f"<b style='color:red;'>{status_label}</b>"
