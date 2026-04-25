@@ -709,3 +709,83 @@
                 <div class="btn-row">
                     <button class="btn btn-ghost" onclick="App.celiacStep(2)">← Back</button>
                     <button class="btn btn-primary btn-submit" onclick="App.submitCeliac()">Get Screening Result ✓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SCREEN: Results                                                -->
+<!-- ============================================================ -->
+<section id="screen-results" class="screen">
+    <div class="screen-content">
+        <button class="btn-back" onclick="App.showScreen('screen-dashboard')">← Dashboard</button>
+        <div id="results-container">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Settings Modal                                                 -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="settings-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>⚙️ Settings</h2>
+            <button class="btn-icon" onclick="App.closeSettings()">✕</button>
+        </div>
+        <div class="form-group">
+            <label for="settings-api-key">Gemini API Key</label>
+            <p class="helper-sm">Required for the AI chatbot. Get yours from <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>.</p>
+            <input type="password" id="settings-api-key" placeholder="Enter your Gemini API key">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="App.saveApiKey()" id="btn-save-key">Save Key</button>
+        <p class="helper-sm" id="key-status" style="margin-top:12px;text-align:center"></p>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Ask AI Chatbot                                                 -->
+<!-- ============================================================ -->
+<button class="chat-fab" id="chat-fab" onclick="App.toggleChat()">
+    <span class="chat-fab-icon">🤖</span>
+    <span class="chat-fab-label">Ask AI</span>
+</button>
+
+<div class="chat-drawer" id="chat-drawer">
+    <div class="chat-header">
+        <div>
+            <h3>🤖 NurtureAI Assistant</h3>
+            <p class="chat-subtitle">Ask anything about your child's health</p>
+        </div>
+        <button class="btn-icon" onclick="App.toggleChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg ai">
+            <div class="chat-bubble">Hi! I'm your NurtureAI assistant. I can answer medical questions about your child using your health data as context. How can I help?</div>
+        </div>
+    </div>
+    <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Ask about your child's health..." onkeydown="if(event.key==='Enter')App.sendChat()">
+        <button class="chat-send" onclick="App.sendChat()">→</button>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Loading Overlay                                                -->
+<!-- ============================================================ -->
+<div class="loading-overlay" id="loading-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <p id="loading-text">Analyzing health data...</p>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
