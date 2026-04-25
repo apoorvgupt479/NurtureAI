@@ -384,3 +384,46 @@ OUTPUT JSON:
             "shouldCallEmergency": False
         }
 
+    except KeyError as e:
+        return {
+            "status": "error",
+            "code": 400,
+            "message": f"Missing or invalid input field: {str(e)}",
+            "isSerious": False,
+            "shouldCallEmergency": False
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "code": 500,
+            "message": str(e),
+            "isSerious": False,
+            "shouldCallEmergency": False
+        }
+
+
+# ---------------------------------------------------------------------------
+# Quick self-test (run this file directly to verify)
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    print("=== chatbot_model.py self-test ===\n")
+
+    print("[1] Loading model...")
+    load_result = load()
+    print(json.dumps(load_result, indent=2))
+
+    if load_result["code"] == 200:
+        print("\n[2] Running a sample prediction...")
+        sample_input = {
+            "query": "What is whooping cough?",
+            "child_info": {"age": "5", "symptoms": "Mild fever and cough"},
+            "parent_info": {"observation": "Seems lethargic but is drinking water"},
+            "chat_history": [],
+            "n_results": 3,
+            "google_api_key": os.environ.get("GOOGLE_API_KEY", "YOUR_API_KEY_HERE")
+        }
+        result = predict(sample_input)
+        print(json.dumps(result, indent=2))
+    else:
+        print("Skipping predict() test — model failed to load.")
