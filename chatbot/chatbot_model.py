@@ -341,3 +341,46 @@ OUTPUT JSON:
     "code": 200,
     "message": "...",
     "isSerious": true/false,
+    "shouldCallEmergency": true/false
+}}
+"""
+
+        gen_config = {
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "max_output_tokens": 1024,
+            "response_mime_type": "application/json",
+            "system_instruction": system_instruction
+        }
+
+        response = client.models.generate_content(
+            model="gemma-4-31b-it",
+            contents=user_prompt,
+            config=gen_config
+        )
+
+        try:
+            result = json.loads(response.text, strict=False)
+        except json.JSONDecodeError:
+            # Fallback if strict=False still fails due to weird formatting
+            import re
+            cleaned_text = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', response.text)
+            result = json.loads(cleaned_text)
+
+        # ---- Enrich result with RAG metadata ----
+        result["rag_documents"] = top_docs
+        result["sources"] = [m.get("source", "") for m in top_metas]
+        if "code" not in result:
+            result["code"] = 200
+
+        return result
+
+    except json.JSONDecodeError as e:
+        return {
+            "status": "error",
+            "code": 500,
+            "message": f"Failed to parse Gemini response as JSON: {str(e)}",
+            "isSerious": False,
+            "shouldCallEmergency": False
+        }
+
