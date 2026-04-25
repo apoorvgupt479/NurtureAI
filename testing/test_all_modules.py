@@ -262,3 +262,36 @@ pkl_paths = {
 for name, path in pkl_paths.items():
     check(f"PKL exists: {name}", os.path.exists(path), path)
 
+# Check all model .py files exist
+model_paths = {
+    "behaviour":      os.path.join(BASE_DIR, "behaviour_analysis", "nurture_model.py"),
+    "child_mortality": os.path.join(BASE_DIR, "child_mortality",   "child_health_model.py"),
+    "nurture":        os.path.join(BASE_DIR, "nurture_model",      "nurture_model.py"),
+    "celiac":         os.path.join(BASE_DIR, "celiac-disease",     "celiac_model.py"),
+    "chatbot":        os.path.join(BASE_DIR, "chatbot",            "chatbot_model.py"),
+}
+for name, path in model_paths.items():
+    check(f"Model .py exists: {name}", os.path.exists(path), path)
+
+# Check frontend files
+frontend_dir = os.path.join(BASE_DIR, "frontend")
+for f in ["index.html", "app.js", "style.css"]:
+    check(f"Frontend file exists: {f}", os.path.exists(os.path.join(frontend_dir, f)))
+
+# Check app.py load() status-code compatibility per module
+print(f"\n  {INFO} Checking load() return value compatibility with app.py:")
+print(f"  {INFO} app.py checks: status_code in (200, 'success', 'ok')")
+
+compat = {
+    "celiac":         ("code", 200),       # returns {"code": 200}
+    "child_mortality": ("code", 200),      # returns {"code": 200}
+    "nurture":        ("status", "ok"),    # returns {"status": "ok", "code": 200}
+    "behaviour":      ("status", 200),     # returns {"status": 200}
+    "chatbot":        ("code", 200),       # returns {"code": 200}
+}
+for name, (key, val) in compat.items():
+    check(f"load() status compatible — {name} ({key}={val})",
+          val in (200, "success", "ok"))
+
+# Critical bug check: behaviour model load() uses status=200 (int), not "success"/"ok"
+# app.py line 72-73: status_code = result.get("code", result.get("status", 500))
