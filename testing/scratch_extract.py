@@ -829,3 +829,122 @@ def on_button_click_enhanced(b):
         status_label = "Healthy/Alive" if prediction == 1 else "At Risk"
 
         status_html = f"<b style='color:green;'>{status_label}</b>" if prediction == 1 else f"<b style='color:red;'>{status_label}</b>"
+        display(HTML(f"<h3>Analysis Result: {status_html}</h3>"))
+        print(f"Confidence in result: {max(probs)*100:.2f}%")
+
+        # Get technical rules first
+        rule_recs = generate_recommendations(current_widget_values, feature_importance.head(10))
+
+        print("\n--- AI Personalized Health Advisor ---")
+        if llm_available:
+            print("Consulting the AI for tailored advice...")
+            llm_text = get_llm_recommendations(current_widget_values, rule_recs, status_label)
+            display(HTML(f"<div style='background-color: #f0f7ff; padding: 15px; border-radius: 10px;'>{llm_text}</div>"))
+        else:
+            print("\n[Rule-Based Recommendations]")
+            for r in rule_recs.split('\n'):
+                print(r)
+
+# --- CELL ---
+
+from collections import defaultdict
+import ipywidgets as widgets
+from IPython.display import display, HTML
+
+input_widgets = {}
+processed_high_level_categories = set()
+
+# --- Special handling for State, using all unique states for options ---
+# Instead of df['State'].unique(), extract states from original_feature_columns
+all_state_cols = [col for col in original_feature_columns if col.startswith('State_')]
+unique_states = sorted(list(set([col.replace('State_', '') for col in all_state_cols])))
+
+# Always create a State dropdown with all unique states for user selection
+state_label = get_label('State')
+state_options_display = sorted([state for state in unique_states]) # Display actual state names
+if state_options_display:
+    state_dropdown = widgets.Dropdown(
+        options=state_options_display,
+        value=state_options_display[0], # Default to the first state
+        description=state_label,
+        style={'description_width': 'initial'},
+        layout={'width': '600px'}
+    )
+    input_widgets['State'] = state_dropdown
+    processed_high_level_categories.add('State')
+
+# --- Handle grouped one-hot encoded features (Religion, Ethnicity, Water_Source, DeliveryPlace) ---
+# These definitions use all possible original one-hot categories from `original_feature_columns`
+# to ensure full selectable options, even if only a subset were selected by the model.
+religion_options = [col.replace('Religion_', '') for col in original_feature_columns if col.startswith('Religion_')]
+if 'Hindu' not in religion_options:
+    religion_options.append('Hindu')
+
+ONE_HOT_GROUPS_DEFINITIONS = {
+    'Religion': religion_options,
+    'Ethnicity': [col.replace('Ethnicity_', '') for col in original_feature_columns if col.startswith('Ethnicity_')],
+    'Water_Source': [col.replace('Water_Source_', '') for col in original_feature_columns if col.startswith('Water_Source_') and col != 'Water_Source_Time'],
+    'DeliveryPlace': [col.replace('DeliveryPlace_', '') for col in original_feature_columns if col.startswith('DeliveryPlace_')]
+}
+
+for group_name, category_options in ONE_HOT_GROUPS_DEFINITIONS.items():
+    if category_options:
+        # Ensure unique and sorted options
+        options_list = sorted(list(set(category_options)))
+        dropdown = widgets.Dropdown(
+            options=options_list,
+            value=options_list[0], # Default to the first option
+            description=get_label(group_name),
+            style={'description_width': 'initial'},
+            layout={'width': '600px'}
+        )
+        input_widgets[group_name] = dropdown
+        processed_high_level_categories.add(group_name) # Mark the group name as processed
+
+# Other Inputs (binary, categorical, and continuous)
+CATEGORY_THRESHOLD = 15 # Define a threshold for treating int columns as categorical dropdowns
+
+# Iterate through selected_feature_names to create widgets for actual model features
+for col in selected_feature_names:
+    # Skip if already handled by a grouped widget (like State, Religion, etc.)
+    is_part_of_processed_group = False
+    for group_name_key in processed_high_level_categories:
+        if (group_name_key == 'State' and col.startswith('State_')) or \
+           (group_name_key == 'Religion' and col.startswith('Religion_')) or \
+           (group_name_key == 'Ethnicity' and col.startswith('Ethnicity_')) or \
+           (group_name_key == 'Water_Source' and col.startswith('Water_Source_') and col != 'Water_Source_Time') or \
+           (group_name_key == 'DeliveryPlace' and col.startswith('DeliveryPlace_')):
+            is_part_of_processed_group = True
+            break
+
+    if not is_part_of_processed_group: # Only create widget if not part of an already processed group
+        label = get_label(col)
+
+        if col == 'Wealth_Idx_Lb':
+            wealth_mapping_options = {
+                'Poor': 0,
+                'Middle Class': 2,
+                'Rich': 4
+            }
+            dropdown = widgets.Dropdown(
+                options=list(wealth_mapping_options.keys()),
+                value='Middle Class', # Default to Middle Class
+                description=label,
+                style={'description_width': 'initial'},
+                layout={'width': '600px'}
+            )
+            input_widgets[col] = dropdown
+        elif col == 'MMR': # Specific handling for MMR
+            radio_btn = widgets.RadioButtons(
+                options=[('0', 0), ('1', 1)], # Display '0' and '1'
+                value=0,
+                description=label,
+                style={'description_width': 'initial'},
+                layout=widgets.Layout(width='initial', display='flex', flex_flow='row')
+            )
+            input_widgets[col] = radio_btn
+        elif col in X.columns: # Check if the column exists in the preprocessed X DataFrame
+            unique_vals = X[col].unique()
+
+            if set(unique_vals).issubset({0, 1}): # Binary features
+                radio_btn = widgets.RadioButtons(
