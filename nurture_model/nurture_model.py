@@ -358,3 +358,44 @@ if __name__ == "__main__":
                 "Basic_Demos-Sex": 1,                     # Male
                 "Physical-BMI": 33,                       # Obese
                 "Physical-Height": 170,
+                "Physical-Weight": 95,
+                "Physical-Waist_Circumference": 102,
+                "Physical-Diastolic_BP": 86,
+                "Physical-Systolic_BP": 139,
+                "Physical-HeartRate": 99,
+                "SDS-SDS_Total_T": 76,                    # High sleep disturbance
+                "PAQ_A-PAQ_A_Total": 1.1,                 # Very inactive
+                "Fitness_Endurance-Max_Stage": 2,
+                "Fitness_Endurance-Time_Mins": 5,
+                "BIA-BIA_Fat": 41,
+                "BIA-BIA_FFM": 54,
+                "BIA-BIA_SMM": 39
+            }
+        }
+    ]
+
+    # ── Step 3: Run predictions and print results ──────────────────
+    risk_emoji = {0: "🟢", 1: "🟡", 2: "🟠", 3: "🔴"}
+
+    for case in test_cases:
+        print(f"\n{'─' * 65}")
+        print(f"  👶 {case['name']}")
+        print(f"{'─' * 65}")
+
+        result = predict(case["data"])
+
+        if result["code"] == 200:
+            pred = result["prediction"]
+            sii  = pred["sii"]
+            print(f"  {risk_emoji[sii]}  Risk Level    : sii = {sii}  →  {pred['risk_label']}")
+            print(f"  📊 Behavior Score : {pred['behavior_score']} / 100")
+            print(f"\n  Class Probabilities:")
+            for label, prob in pred["probabilities"].items():
+                bar = "█" * int(prob * 30)
+                print(f"    {label:<30}  {prob:.3f}  {bar}")
+        else:
+            print(f"  ❌ Error: {result['message']}")
+
+    print(f"\n{'=' * 65}")
+    print("  ✅ Demo complete!")
+    print(f"{'=' * 65}\n")
