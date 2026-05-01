@@ -948,3 +948,122 @@ for col in selected_feature_names:
 
             if set(unique_vals).issubset({0, 1}): # Binary features
                 radio_btn = widgets.RadioButtons(
+                    options=[('No', 0), ('Yes', 1)],
+                    value=0,
+                    description=label,
+                    style={'description_width': 'initial'},
+                    layout=widgets.Layout(width='initial', display='flex', flex_flow='row') # Horizontal alignment
+                )
+                input_widgets[col] = radio_btn
+            elif X[col].dtype in ['int64'] and X[col].nunique() <= CATEGORY_THRESHOLD: # Categorical int features
+                dropdown_options = sorted(list(unique_vals))
+                dropdown = widgets.Dropdown(
+                    options=[(str(opt), opt) for opt in dropdown_options], # Display string, return int
+                    value=dropdown_options[0],
+                    description=label,
+                    style={'description_width': 'initial'},
+                    layout={'width': '600px'}
+                )
+                input_widgets[col] = dropdown
+            elif X[col].dtype == 'int64': # Continuous int features
+                min_val = X[col].min()
+                max_val = X[col].max()
+                median_val = X[col].median()
+                slider = widgets.IntSlider(
+                    min=int(min_val) if pd.notnull(min_val) else 0,
+                    max=int(max_val) if pd.notnull(max_val) else 100,
+                    value=int(median_val) if pd.notnull(median_val) else 50,
+                    description=label,
+                    style={'description_width': 'initial'},
+                    layout={'width': '600px'}
+                )
+                input_widgets[col] = slider
+            elif X[col].dtype == 'float64': # Continuous float features
+                min_val = X[col].min()
+                max_val = X[col].max()
+                median_val = X[col].median()
+                slider = widgets.FloatSlider(
+                    min=float(min_val) if pd.notnull(min_val) else 0.0,
+                    max=float(max_val) if pd.notnull(max_val) else 100.0,
+                    value=float(median_val) if pd.notnull(median_val) else 50.0,
+                    step=(max_val - min_val) / 100.0 if (max_val - min_val) > 0 else 0.1, # Add a step
+                    description=label,
+                    style={'description_width': 'initial'},
+                    layout={'width': '600px'}
+                )
+                input_widgets[col] = slider
+            else:
+                print(f"Warning: Feature '{col}' has an unhandled dtype '{X[col].dtype}'. Skipping.")
+        else: # Feature in selected_feature_names but not directly found in X or covered by grouped categories
+            print(f"Warning: Feature '{col}' is in selected features but not directly found in the original DataFrame (X) or covered by grouped categories. Skipping.")
+
+# Define output area and button
+output_area = widgets.Output()
+predict_button = widgets.Button(
+    description="Analyze Child Health",
+    button_style='success',
+    layout={'width': '300px', 'height': '45px'}
+)
+
+# Define the mapping from widget names (keys in input_widgets) to section titles
+feature_to_section_map_for_widgets = {
+    'Res_Age': 'Mother Health',
+    'Edu_level': 'Mother Health',
+    'Tot_child_born': 'Mother Health',
+    'Sons_died': 'Mother Health',
+    'Daughters_died': 'Mother Health',
+    'Married_age': 'Mother Health',
+    'Anemia_level': 'Mother Health',
+    'Preg_months': 'Mother Health',
+    'Breastfeed_duration': 'Mother Health',
+    'Resp_height': 'Mother Health',
+    'Curr_MaritalStatus_Single Parent': 'Mother Health',
+    'Resp_weight': 'Mother Health',
+    'Hg_levelAdjusted': 'Mother Health',
+    'HealthInsurance': 'Mother Health',
+    'B_ChildTwin': 'Child Health',
+    'ChildAge_mnths': 'Child Health',
+    'Birth_Weight': 'Child Health',
+    'Curr_BrstFeed': 'Child Health',
+    'ChildFood_bottle': 'Child Health',
+    'First3Day_sugarWater': 'Child Health',
+    'First3Day_other': 'Child Health',
+    'Birth_Order': 'Child Health',
+    'Birth_Size': 'Child Health',
+    'Delivery_CSection': 'Child Health',
+    'Preg_iron': 'Mother Health',
+    'Preg_intParaDrug': 'Mother Health',
+    'Preg_Complication': 'Mother Health',
+    'Antenatal_visit': 'Mother Health',
+    'HepatitisB_atBirth': 'Child Health',
+    'VitaminA': 'Child Health',
+    'IronPill': 'Child Health',
+    'IntestinalDrug': 'Child Health',
+    'Diarrhea': 'Child Health',
+    'Fever': 'Child Health',
+    'ShortBreaths': 'Child Health',
+    'Birth_Month': "Child Health",
+    'Birth_Year': "Child Health",
+    'Alcohol': 'Mother Health',
+    'Smoke_atHome': 'Household Info',
+    'Preg_months': 'Mother Health',
+    'First3Day_janamGhutti': 'Child Health',
+    'First3Day_honey': 'Child Health',
+    'First3Day_gripeWater': 'Child Health',
+    'First3Day_fruitJuice': 'Child Health',
+    'First3Day_infFormu': 'Child Health',
+    'First3Day_animalMilk': 'Child Health',
+    'First3Day_plainWater': 'Child Health',
+    'First3Day_saltSol': 'Child Health',
+    'Hypertension': 'Mother Health',
+    'Diabetes': 'Mother Health',
+    'Thyroid': 'Mother Health',
+    'RespDisease': 'Mother Health',
+    'HeartDisease': 'Mother Health',
+    'Cancer': 'Mother Health',
+    'Kidney': 'Mother Health',
+    'ultrasound': 'Mother Health',
+    'PostnatalChk': 'Mother Health',
+    'Resp_healthChk': 'Mother Health',
+    'DPTB': 'Vaccination',
+    'MMR': 'Vaccination',
