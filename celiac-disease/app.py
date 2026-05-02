@@ -175,3 +175,25 @@ with st.sidebar:
 if st.button("🚀 Analyze Patient Profile"):
     input_data = {
         "Age": age,
+        "Gender": gender,
+        "Diabetes": diabetes,
+        "Diabetes Type": diabetes_type,
+        "Diarrhoea": diarrhoea,
+        "Abdominal": abdominal,
+        "Short_Stature": short_stature,
+        "Sticky_Stool": sticky_stool,
+        "Weight_loss": weight_loss,
+        "IgA": iga,
+        "IgG": igg,
+        "IgM": igm
+    }
+    
+    with st.spinner("Processing clinical markers..."):
+        result = celiac_model.predict(input_data)
+        
+    if result["status"] == "success":
+        st.markdown('<div class="prediction-card">', unsafe_allow_html=True)
+        if result["prediction"] == 1:
+            st.markdown('<p class="positive">⚠️ POSITIVE INDICATION</p>', unsafe_allow_html=True)
+            st.warning("The model suggests a high probability of Celiac disease. Further clinical validation (e.g., biopsy) is strongly recommended.")
+        else:
