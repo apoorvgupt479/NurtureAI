@@ -1067,3 +1067,122 @@ feature_to_section_map_for_widgets = {
     'Resp_healthChk': 'Mother Health',
     'DPTB': 'Vaccination',
     'MMR': 'Vaccination',
+    'Benefit_HCare': 'Household Info',
+    'Smoke': 'Mother Health',
+    'Betel_Leaf': 'Mother Health',
+    'Tobacco': 'Mother Health',
+    'Prenatal_care': 'Mother Health',
+    'Breastfeed_duration': 'Mother Health',
+    'B_ChildSex_Male': 'Child Health',
+    'Curr_MaritalStatus_Single Parent': 'Mother Health',
+    'DPT_full': 'Vaccination',
+    'MEASLES_full': 'Vaccination',
+    'JE_full': 'Vaccination',
+    'Religion': 'Household Info',
+    'Ethnicity': 'Household Info',
+    'Water_Source': 'Household Info',
+    'DeliveryPlace': 'Household Info',
+    'State': 'Household Info',
+
+    'Wealth_Idx_Lb': 'Household Info',
+    'Household_members': 'Household Info',
+    'Water_Source_Time': 'Household Info',
+    'House_tv': 'Household Info',
+    'House_bicycle': 'Household Info',
+    'House_motorcycle': 'Household Info',
+    'House_car': 'Household Info',
+    'House_electricity': 'Household Info',
+    'House_radio': 'Household Info',
+    'House_telephone': 'Household Info',
+    'Toilet_Facility': 'Household Info'
+}
+
+# Ordered list of section titles for the accordion
+section_titles_order = [
+    'Mother Health',
+    'Child Health',
+    'Household Info',
+    'Vaccination',
+    'Other Information'
+]
+
+# Group widgets into sections
+sections_data = defaultdict(list)
+
+# Add special handling widgets (State, ONE_HOT_GROUPS) with spacing
+if 'State' in input_widgets: # If State dropdown was created
+    sections_data[feature_to_section_map_for_widgets.get('State', 'Other Information')].append(
+        widgets.VBox([input_widgets['State']], layout=widgets.Layout(margin='10px 0px'))
+    )
+for group_name in ONE_HOT_GROUPS_DEFINITIONS.keys():
+    if group_name in input_widgets: # If a dropdown for this group was created
+        sections_data[feature_to_section_map_for_widgets.get(group_name, 'Other Information')].append(
+            widgets.VBox([input_widgets[group_name]], layout=widgets.Layout(margin='10px 0px'))
+        )
+
+# Add other individual widgets with spacing
+for widget_name, widget_instance in input_widgets.items():
+    # Skip if already handled by State or ONE_HOT_GROUPS to avoid duplication
+    if widget_name == 'State' or widget_name in ONE_HOT_GROUPS_DEFINITIONS.keys():
+        continue
+    section_title = feature_to_section_map_for_widgets.get(widget_name, 'Other Information')
+    sections_data[section_title].append(
+        widgets.VBox([widget_instance], layout=widgets.Layout(margin='10px 0px')) # Add vertical margin
+    )
+
+# Create the sections for the Accordion in the desired order, adding descriptions
+accordion_children = []
+accordion_titles = []
+
+section_descriptions = {
+    'Mother Health': "<p style='font-size:14px; color:#555;'>Provide details about the mother's health status, age, and pregnancy history. This information helps assess her overall well-being which impacts child survival.</p>",
+    'Child Health': "<p style='font-size:14px; color:#555;'>Enter information about the child's birth, current health, and early feeding practices. These factors are critical for determining potential health risks.</p>",
+    'Household Info': "<p style='font-size:14px; color:#555;'>Input details about the household environment and socio-economic factors. Living conditions and access to resources significantly influence a child's health.</p>",
+    'Vaccination': "<p style='font-size:14px; color:#555;'>Specify the child's vaccination status. Vaccinations are vital for protecting children from various preventable diseases and improving survival rates.</p>",
+    'Other Information': "<p style='font-size:14px; color:#555;'>Additional relevant information that contributes to the child's health assessment.</p>"
+}
+
+for title in section_titles_order:
+    if title in sections_data:
+        section_content = []
+        if title in section_descriptions:
+            section_content.append(widgets.HTML(section_descriptions[title]))
+        section_content.extend(sections_data[title])
+        accordion_children.append(widgets.VBox(section_content, layout=widgets.Layout(padding='10px')))
+        accordion_titles.append(title)
+
+# If there are any 'Other Information' widgets (for features not explicitly mapped), add them last
+if 'Other Information' in sections_data and 'Other Information' not in accordion_titles: # Ensure it's not already added
+    section_content = []
+    if 'Other Information' in section_descriptions:
+        section_content.append(widgets.HTML(section_descriptions['Other Information']))
+    section_content.extend(sections_data['Other Information'])
+    accordion_children.append(widgets.VBox(section_content, layout=widgets.Layout(padding='10px')))
+    accordion_titles.append('Other Information')
+
+accordion = widgets.Accordion(children=accordion_children)
+
+for i, title in enumerate(accordion_titles):
+    accordion.set_title(i, title)
+
+# Bind the predict button to the enhanced function
+predict_button.on_click(on_button_click_enhanced)
+
+# Display UI
+display(HTML("""
+    <div style='font-family: sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9;'>
+        <h2 style='color: #2c3e50; text-align: center; margin-bottom: 15px;'>Child Health Risk Prediction System</h2>
+        <p style='text-align: center; color: #555; font-size: 15px; margin-bottom: 25px;'>
+            This interactive tool helps assess potential health risks for children based on key maternal and household factors.
+            Please provide the following information to receive a personalized risk prediction and health recommendations.
+        </p>
+    </div>
+    <div style='margin-top: 20px;'>
+"""))
+display(accordion)
+display(predict_button)
+display(HTML("</div>")) # Close the wrapper div
+display(output_area)
+
+# --- CELL ---
+
