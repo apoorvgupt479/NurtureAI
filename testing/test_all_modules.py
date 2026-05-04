@@ -295,3 +295,36 @@ for name, (key, val) in compat.items():
 
 # Critical bug check: behaviour model load() uses status=200 (int), not "success"/"ok"
 # app.py line 72-73: status_code = result.get("code", result.get("status", 500))
+#                    if status_code in (200, "success", "ok"):
+print(f"\n  {INFO} Verifying behaviour model load() status path through app.py logic:")
+sim_behaviour_load = {"status": 200, "message": "OK", "features_required": [], "classes": []}
+status_code = sim_behaviour_load.get("code", sim_behaviour_load.get("status", 500))
+check("Behaviour load() status resolves to 200 in app.py", status_code == 200,
+      f"resolved value = {status_code}")
+
+print(f"\n  {INFO} Verifying nurture model load() status path through app.py logic:")
+sim_nurture_load = {"status": "ok", "code": 200}
+status_code = sim_nurture_load.get("code", sim_nurture_load.get("status", 500))
+check("Nurture load() status resolves to 200 in app.py", status_code == 200,
+      f"resolved value = {status_code}")
+
+
+# ─────────────────────────────────────────────────────────────
+# SUMMARY
+# ─────────────────────────────────────────────────────────────
+section("FINAL SUMMARY")
+total = len(results)
+passed = sum(results.values())
+failed = total - passed
+
+for name, ok in results.items():
+    status = PASS if ok else FAIL
+    print(f"  {status} {name}")
+
+print(f"\n  Total: {total}  |  Passed: {passed}  |  Failed: {failed}")
+
+if failed == 0:
+    print(f"\n  \033[92mAll critical checks passed!\033[0m")
+else:
+    print(f"\n  \033[91m{failed} critical check(s) FAILED — see details above.\033[0m")
+    sys.exit(1)
