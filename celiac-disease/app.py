@@ -197,3 +197,26 @@ if st.button("🚀 Analyze Patient Profile"):
             st.markdown('<p class="positive">⚠️ POSITIVE INDICATION</p>', unsafe_allow_html=True)
             st.warning("The model suggests a high probability of Celiac disease. Further clinical validation (e.g., biopsy) is strongly recommended.")
         else:
+            st.markdown('<p class="negative">✅ NEGATIVE INDICATION</p>', unsafe_allow_html=True)
+            st.success("The model suggests a low probability of Celiac disease based on the provided markers.")
+        
+        st.markdown("---")
+        st.subheader("Analysis Summary")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("IgA", f"{iga:.2f}")
+        col2.metric("IgG", f"{igg:.2f}")
+        col3.metric("IgM", f"{igm:.2f}")
+        
+        st.json(input_data)
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.error(f"Prediction Error: {result['message']}")
+
+elif load_status["status"] != "success":
+    st.error(f"Error loading model: {load_status['message']}")
+else:
+    st.info("Adjust the parameters in the sidebar and click 'Analyze Patient Profile' to begin.")
+
+# --- Footer ---
+st.markdown("---")
+st.caption("Disclaimer: This tool is for educational and research purposes only. It is not a substitute for professional medical diagnosis.")
