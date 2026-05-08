@@ -1,0 +1,125 @@
+# NurtureAI 🌟
+
+![NurtureAI Banner](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python)
+![Flask](https://img.shields.io/badge/Flask-Backend-black?style=for-the-badge&logo=flask)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Powered-orange?style=for-the-badge)
+
+NurtureAI is an advanced, comprehensive suite of predictive health and behavior analysis tools aimed at helping parents, caregivers, and medical practitioners assess the wellbeing of infants, toddlers, and adults. Featuring state-of-the-art Machine Learning models and an interactive LLM-powered chatbot, NurtureAI bridges the gap between raw medical/behavioral data and actionable insights.
+
+---
+
+## 🚀 Features at a Glance
+
+### 1. **Adult / Parenting Behavioral Risk Analysis**
+Leveraging an XGBoost-based prediction model, NurtureAI analyzes detailed behavioral inputs to assess parental stress levels, interaction styles, and overall household stability. It outputs a comprehensive risk score to help caregivers recognize potential behavioral flags early.
+
+### 2. **Infant & Child Health Assessment**
+Using Random Forest pipelines trained on comprehensive health surveys (such as the NHFS-5), the platform can predict child mortality risk factors. It takes into account environmental factors, prenatal care, and maternal health indicators to provide deep, reliable insights.
+
+### 3. **Celiac Disease Prediction**
+A specialized LightGBM model trained to identify early indicators of Celiac Disease in children and adults based on symptomatic patterns, medical history, and dietary responses.
+
+### 4. **AI Healthcare Chatbot**
+Powered by **Google's Gemini AI** and **RAG (Retrieval-Augmented Generation)** through ChromaDB, our interactive chatbot offers highly contextual, safety-filtered advice regarding childcare, nutrition, and early disease symptoms. 
+
+### 5. **Premium UI/UX (Glassmorphism)**
+The frontend is built with pure, modern Vanilla JS and CSS, utilizing stunning glassmorphism aesthetics, dynamic routing, and fluid micro-animations for an incredibly premium user experience.
+
+---
+
+## 📂 Project Architecture
+
+The application follows a modular architecture separating the Flask REST API from the frontend UI and the distinct Machine Learning pipelines.
+
+```
+NurtureAI/
+├── app.py                      # Main Flask application & API routes
+├── requirements.txt            # Python dependencies
+├── gemini_api_key.txt          # Secret file for Gemini AI key
+├── frontend/                   # HTML, CSS, JS frontend assets
+│   ├── index.html              # Dashboard UI
+│   ├── style.css               # Premium Glassmorphism styling
+│   └── app.js                  # Asynchronous API handlers
+├── chatbot/                    # Gemini AI & RAG implementation
+├── behaviour_analysis/         # XGBoost Nurture model & notebooks
+├── child_mortality/            # Random Forest Health model & EDA
+├── celiac-disease/             # LightGBM Celiac model & EDA
+└── documentation/              # Architecture diagrams & presentations
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+Follow these steps to run NurtureAI locally:
+
+### Prerequisites
+- Python 3.8 or higher
+- Git
+
+### 1. Clone the Repository
+```bash
+git clone git@github.com:apoorvgupt479/NurtureAI.git
+cd NurtureAI
+```
+
+### 2. Create a Virtual Environment (Recommended)
+```bash
+python -m venv .venv
+source .venv/bin/activate    # On Windows: .venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure the Gemini API Key
+To enable the interactive chatbot, you must provide a valid Google Gemini API Key.
+Create a file named `gemini_api_key.txt` in the root directory and paste your key:
+```text
+YOUR_GEMINI_API_KEY_HERE
+```
+*(Alternatively, you can set the `GOOGLE_API_KEY` environment variable or configure it directly through the UI dashboard settings).*
+
+### 5. Run the Server
+The application uses threaded lazy-loading to boot instantly while loading heavy ML models in the background.
+```bash
+python app.py
+```
+
+### 6. Access the Dashboard
+Open your web browser and navigate to:
+```
+http://localhost:5000
+```
+
+---
+
+## 🧪 Testing
+We have included a suite of test scripts to validate model accuracy, API output formatting, and coverage edge-cases.
+Run the tests using:
+```bash
+python testing/test_all_modules.py
+python testing/test_output_coverage.py
+```
+
+---
+
+## 🛠️ Built With
+
+* **Backend:** Flask, Python
+* **Frontend:** HTML5, CSS3, Vanilla JS
+* **Machine Learning:** Scikit-Learn, LightGBM, XGBoost, Pandas, Numpy
+* **AI & NLP:** Google Generative AI (Gemini), ChromaDB, Langchain
+* **Design:** Custom Glassmorphism UI Framework
+
+---
+
+## 📜 License & Disclaimer
+
+This project is intended for **informational and portfolio purposes only**. The predictions generated by the Machine Learning models and the Chatbot do NOT constitute professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+
+---
+*Developed with ❤️ over 3 months.*
