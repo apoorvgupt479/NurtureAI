@@ -1,0 +1,7 @@
+.venv
+__pycache__
+*.pyc
+copy_helper.py
+generate_script.py
+upload_to_github.cmd
+git_upload.log
