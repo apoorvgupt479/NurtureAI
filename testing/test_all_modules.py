@@ -12,7 +12,7 @@ import traceback
 # Force UTF-8 output on Windows to avoid UnicodeEncodeError
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PASS = "[PASS]"
 FAIL = "[FAIL]"
 WARN = "[WARN]"
@@ -216,10 +216,10 @@ except Exception as e:
 # ─────────────────────────────────────────────────────────────
 section("5. CHATBOT MODEL (chatbot/chatbot_model.py)")
 try:
-    chatbot_path = os.path.join(BASE_DIR, "chatbot", "chroma_full_state.pkl")
+    chatbot_path = os.path.join(BASE_DIR, "chatbot", "chroma_documents.pkl")
     chatbot = _import("chatbot_model", os.path.join(BASE_DIR, "chatbot", "chatbot_model.py"))
 
-    print(f"  {INFO} Loading ChromaDB (this may take ~30s for 46 MB pkl)...")
+    print(f"  {INFO} Loading TF-IDF database (from chroma_documents.pkl)...")
     load_res = chatbot.load(pkl_path=chatbot_path)
     loaded = check("load() returns code 200", load_res.get("code") == 200, str(load_res))
     results["chatbot_load"] = loaded
@@ -257,7 +257,7 @@ pkl_paths = {
     "child_mortality": os.path.join(BASE_DIR, "child_mortality",   "model.pkl"),
     "nurture":        os.path.join(BASE_DIR, "nurture_model",      "nurture_model.pkl"),
     "celiac":         os.path.join(BASE_DIR, "celiac-disease",     "celiac_model.pkl"),
-    "chatbot":        os.path.join(BASE_DIR, "chatbot",            "chroma_full_state.pkl"),
+    "chatbot":        os.path.join(BASE_DIR, "chatbot",            "chroma_documents.pkl"),
 }
 for name, path in pkl_paths.items():
     check(f"PKL exists: {name}", os.path.exists(path), path)

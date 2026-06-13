@@ -20,14 +20,27 @@ FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 app = Flask(__name__, static_folder=FRONTEND_DIR)
 CORS(app)
 
+# Try to load local .env file manually if it exists (0MB footprint fallback)
+_env_path = os.path.join(BASE_DIR, ".env")
+if os.path.exists(_env_path):
+    with open(_env_path, "r", encoding="utf-8") as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _v = _line.split("=", 1)
+                os.environ[_k.strip()] = _v.strip().strip('"').strip("'")
+
 # ---------------------------------------------------------------------------
 # In-memory settings store
 # ---------------------------------------------------------------------------
-_settings = {"gemini_api_key": ""}
-_api_key_path = os.path.join(BASE_DIR, "gemini_api_key.txt")
-if os.path.exists(_api_key_path):
-    with open(_api_key_path, "r", encoding="utf-8") as _f:
-        _settings["gemini_api_key"] = _f.read().strip()
+_settings = {
+    "gemini_api_key": os.environ.get("GEMINI_API_KEY", os.environ.get("GOOGLE_API_KEY", ""))
+}
+if not _settings["gemini_api_key"]:
+    _api_key_path = os.path.join(BASE_DIR, "gemini_api_key.txt")
+    if os.path.exists(_api_key_path):
+        with open(_api_key_path, "r", encoding="utf-8") as _f:
+            _settings["gemini_api_key"] = _f.read().strip()
 
 # ---------------------------------------------------------------------------
 # Model Imports (using importlib to avoid name collisions)
@@ -55,7 +68,7 @@ PKL_PATHS = {
     "child_mortality":  os.path.join(BASE_DIR, "child_mortality", "model.pkl"),
     "nurture":          os.path.join(BASE_DIR, "nurture_model", "nurture_model.pkl"),
     "celiac":           os.path.join(BASE_DIR, "celiac-disease", "celiac_model.pkl"),
-    "chatbot":          os.path.join(BASE_DIR, "chatbot", "chroma_full_state.pkl"),
+    "chatbot":          os.path.join(BASE_DIR, "chatbot", "chroma_documents.pkl"),
 }
 
 

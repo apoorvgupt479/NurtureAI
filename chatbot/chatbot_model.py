@@ -99,57 +99,63 @@ import json
 import copy
 
 # Global state
-_chroma_collection = None
-_chroma_client = None
-_pkl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chroma_full_state.pkl")
+_vectorizer = None
+_tfidf_matrix = None
+_archive = None
+_pkl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chroma_documents.pkl")
 
 # ---------------------------------------------------------------------------
 # LOAD FUNCTION
 # ---------------------------------------------------------------------------
 def load(pkl_path: str = None) -> dict:
     """
-    Loads the chroma_full_state.pkl archive into an in-memory ChromaDB
-    collection so it is ready for querying.
+    Loads the chroma_documents.pkl archive and builds a TF-IDF vector space
+    representing the documents for fast medical Q&A retrieval.
 
     Args:
         pkl_path (str, optional): Absolute or relative path to the .pkl file.
-                                  Defaults to chroma_full_state.pkl in the
+                                  Defaults to chroma_documents.pkl in the
                                   same directory as this script.
 
     Returns:
         dict: {"status": "success", "code": 200, "message": "..."}
               or {"status": "error",   "code": 500, "message": "<error>"}
     """
-    global _chroma_collection, _chroma_client, _pkl_path
+    global _vectorizer, _tfidf_matrix, _archive, _pkl_path
 
     try:
-        import chromadb
+        from sklearn.feature_extraction.text import TfidfVectorizer
     except ImportError:
         return {
             "status": "error",
             "code": 500,
-            "message": "chromadb is not installed. Run: pip install chromadb"
+            "message": "scikit-learn is not installed. Run: pip install scikit-learn"
         }
 
     # Resolve path
     if pkl_path:
         _pkl_path = pkl_path
 
+    # Fallback to chroma_documents.pkl if passed full state is not found
     if not os.path.exists(_pkl_path):
-        return {
-            "status": "error",
-            "code": 500,
-            "message": f"PKL file not found at: {_pkl_path}"
-        }
+        fallback_path = os.path.join(os.path.dirname(_pkl_path), "chroma_documents.pkl")
+        if os.path.exists(fallback_path):
+            _pkl_path = fallback_path
+        else:
+            return {
+                "status": "error",
+                "code": 500,
+                "message": f"PKL file not found at: {_pkl_path}"
+            }
 
     try:
         # Load archive
         with open(_pkl_path, "rb") as f:
-            archive = pickle.load(f)
+            _archive = pickle.load(f)
 
         # Validate archive keys
-        required_keys = {"ids", "embeddings", "documents", "metadatas"}
-        missing = required_keys - set(archive.keys())
+        required_keys = {"ids", "documents", "metadatas"}
+        missing = required_keys - set(_archive.keys())
         if missing:
             return {
                 "status": "error",
@@ -157,35 +163,15 @@ def load(pkl_path: str = None) -> dict:
                 "message": f"PKL archive is missing keys: {missing}"
             }
 
-        # Build in-memory ChromaDB collection
-        _chroma_client = chromadb.Client()
-        col_name = "medquad_chatbot"
+        # Build TF-IDF vectorizer and matrix
+        _vectorizer = TfidfVectorizer(stop_words='english')
+        _tfidf_matrix = _vectorizer.fit_transform(_archive["documents"])
 
-        # Clear any previous collection
-        try:
-            _chroma_client.delete_collection(col_name)
-        except Exception:
-            pass
-
-        _chroma_collection = _chroma_client.create_collection(name=col_name)
-
-        # Insert in batches to avoid memory/API limits
-        total = len(archive["ids"])
-        batch_size = 5000
-        for i in range(0, total, batch_size):
-            end = min(i + batch_size, total)
-            _chroma_collection.upsert(
-                ids=archive["ids"][i:end],
-                embeddings=archive["embeddings"][i:end],
-                documents=archive["documents"][i:end],
-                metadatas=archive["metadatas"][i:end]
-            )
-
-        loaded_count = _chroma_collection.count()
+        loaded_count = len(_archive["ids"])
         return {
             "status": "success",
             "code": 200,
-            "message": f"Model loaded successfully. ChromaDB collection ready with {loaded_count} items."
+            "message": f"Model loaded successfully. TF-IDF retriever ready with {loaded_count} items."
         }
 
     except Exception as e:
@@ -201,26 +187,26 @@ def load(pkl_path: str = None) -> dict:
 # ---------------------------------------------------------------------------
 def predict(input_data: dict) -> dict:
     """
-    Takes user input, retrieves relevant medical documents via ChromaDB RAG,
+    Takes user input, retrieves relevant medical documents via TF-IDF search,
     and generates a structured medical response using Google Gemini.
 
     Args:
         input_data (dict): Must contain at minimum:
             - "query"          (str)  : The medical question.
-            - "google_api_key" (str)  : Gemini API key (or set GOOGLE_API_KEY env var).
+            - "google_api_key" (str)  : Gemini API key (or set GEMINI_API_KEY/GOOGLE_API_KEY env var).
           Optionally:
             - "child_info"     (dict) : Child age and symptoms.
             - "parent_info"    (dict) : Parent observations.
             - "chat_history"   (list) : Previous conversation turns.
-            - "n_results"      (int)  : Number of RAG docs to retrieve (default 3).
+            - "n_results"      (int)  : Number of docs to retrieve (default 3).
 
     Returns:
         dict: Structured JSON response with status, message, and severity flags.
     """
-    global _chroma_collection
+    global _vectorizer, _tfidf_matrix, _archive
 
     # ---- Validate model is loaded ----
-    if _chroma_collection is None:
+    if _vectorizer is None or _tfidf_matrix is None or _archive is None:
         return {
             "status": "error",
             "code": 500,
@@ -250,12 +236,12 @@ def predict(input_data: dict) -> dict:
         }
 
     # ---- Resolve API key ----
-    api_key = input_data.get("google_api_key") or os.environ.get("GOOGLE_API_KEY", "")
+    api_key = input_data.get("google_api_key") or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
     if not api_key:
         return {
             "status": "error",
             "code": 400,
-            "message": "Missing 'google_api_key' in input_data or GOOGLE_API_KEY environment variable.",
+            "message": "Missing 'google_api_key' in input_data or GEMINI_API_KEY/GOOGLE_API_KEY environment variable.",
             "isSerious": False,
             "shouldCallEmergency": False
         }
@@ -282,15 +268,15 @@ def predict(input_data: dict) -> dict:
 
     try:
         # ----------------------------------------------------------------
-        # Step 1: RAG — Query ChromaDB for top relevant documents
+        # Step 1: TF-IDF Search — Query TF-IDF matrix for top documents
         # ----------------------------------------------------------------
-        query_results = _chroma_collection.query(
-            query_texts=[query],
-            n_results=n_results
-        )
+        from sklearn.metrics.pairwise import cosine_similarity
+        query_vec = _vectorizer.transform([query])
+        similarities = cosine_similarity(query_vec, _tfidf_matrix).flatten()
+        top_indices = similarities.argsort()[::-1][:n_results]
 
-        top_docs  = query_results["documents"][0] if query_results["documents"] else []
-        top_metas = query_results["metadatas"][0] if query_results["metadatas"] else []
+        top_docs  = [_archive["documents"][idx] for idx in top_indices]
+        top_metas = [_archive["metadatas"][idx] for idx in top_indices]
 
         # Build RAG context for prompt
         rag_context = []
@@ -421,7 +407,7 @@ if __name__ == "__main__":
             "parent_info": {"observation": "Seems lethargic but is drinking water"},
             "chat_history": [],
             "n_results": 3,
-            "google_api_key": os.environ.get("GOOGLE_API_KEY", "YOUR_API_KEY_HERE")
+            "google_api_key": os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY", "YOUR_API_KEY_HERE")
         }
         result = predict(sample_input)
         print(json.dumps(result, indent=2))

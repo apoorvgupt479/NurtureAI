@@ -1,5 +1,5 @@
 import pickle
-import pandas as pd
+import numpy as np
 
 # REQUIRED INPUT FEATURES (EXACT MODEL ORDER) WITH MEANING, TYPE, AND VALID VALUES.
 # 1. Toilet_Facility: Household has toilet facility. Type=int, values: 0 or 1.
@@ -193,16 +193,16 @@ def predict(input_data):
             return {"error": "Model not loaded", "code": 500}
 
         model_row = _build_model_row(input_data)
-        input_df = pd.DataFrame([[model_row[col] for col in FEATURE_ORDER]], columns=FEATURE_ORDER)
+        input_arr = np.array([[model_row[col] for col in FEATURE_ORDER]])
 
-        prediction = model.predict(input_df)[0]
+        prediction = model.predict(input_arr)[0]
         result = {
             "prediction": int(prediction),
             "code": 200,
         }
 
         if hasattr(model, "predict_proba"):
-            probability = float(model.predict_proba(input_df)[0][1])
+            probability = float(model.predict_proba(input_arr)[0][1])
             result["probability_class_1"] = probability
 
         return result

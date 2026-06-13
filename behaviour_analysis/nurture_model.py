@@ -90,7 +90,7 @@
 # ============================================================
 
 import pickle
-import pandas as pd
+import numpy as np
 
 # Global model bundle (loaded by load())
 _model_bundle = None
@@ -182,7 +182,7 @@ def predict(input_data):
 
     try:
         # --- Random Forest Prediction ---
-        rf_input = pd.DataFrame([{k: input_data[k] for k in clf_features}])
+        rf_input = np.array([[input_data[k] for k in clf_features]])
         predicted_label = rf.predict(rf_input)[0]
         predicted_proba = rf.predict_proba(rf_input)[0]
         class_labels = rf.classes_

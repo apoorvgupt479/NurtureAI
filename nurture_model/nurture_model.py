@@ -49,7 +49,6 @@
 import os          # Used to check if the .pkl file exists on disk
 import pickle      # Used to load the saved model from the .pkl file
 import numpy as np # For math operations (used in behavior score calculation)
-import pandas as pd  # For creating a structured data table (DataFrame)
 
 # ── Path to the saved model file ──────────────────────────────────────────────
 # This assumes nurture_model.pkl is in the SAME folder as this script.
@@ -237,28 +236,29 @@ def predict(input_data: dict) -> dict:
         # 5. Behavior_Score — composite lifestyle health score (0–100)
         input_data["Behavior_Score"] = _compute_behavior_score(input_data)
 
-        # ── Step E: Build a single-row DataFrame with features in the RIGHT order ──
+        # ── Step E: Reconstruct the features in the RIGHT order with fill value ──
         # The model was trained with features in a specific column order.
         # We MUST preserve that order — wrong order = garbage predictions!
-        # .reindex() puts columns in the right order; fill_value=0 handles missing features.
-        X = pd.DataFrame([input_data]).reindex(columns=feature_names, fill_value=np.nan)
+        row_vals = []
+        for col in feature_names:
+            val = input_data.get(col)
+            # Check if val is None or NaN
+            if val is None or (isinstance(val, float) and np.isnan(val)):
+                if col in raw_feat_cols:
+                    val = raw_medians.get(col, 0)
+                else:
+                    val = 0
+            row_vals.append(val)
 
-        # ── Step F: Fill in any missing (NaN) values using the training medians ──
-        # Some features like BIA or fitness might not always be available.
-        # For each raw feature that is missing, we fill in the median value
-        # that was seen during training. This is exactly what the model expects.
-        for col in raw_feat_cols:
-            if col in X.columns and X[col].isna().any():
-                X[col] = X[col].fillna(raw_medians.get(col, 0))
-        X_df = X.fillna(0)   # Safety net: fill any remaining NaN with 0
+        X_arr = np.array([row_vals])
 
         # ── Step G: Run the model ─────────────────────────────────────────
-        prediction = int(model.predict(X_df)[0])   # Single prediction: 0, 1, 2, or 3
+        prediction = int(model.predict(X_arr)[0])   # Single prediction: 0, 1, 2, or 3
 
         # Get probability for each class (how confident the model is)
         probabilities = {}
         if hasattr(model, "predict_proba"):
-            proba_array = model.predict_proba(X_df)[0]   # Array of 4 probabilities
+            proba_array = model.predict_proba(X_arr)[0]   # Array of 4 probabilities
             class_labels = {0: "None (Healthy)", 1: "Mild", 2: "Moderate", 3: "Severe"}
             for i, prob in enumerate(proba_array):
                 probabilities[f"sii={i} ({class_labels[i]})"] = round(float(prob), 4)
